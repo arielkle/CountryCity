@@ -1,811 +1,795 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.4">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>אתגר האותיות - מהדורת כיתה</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Assistant', sans-serif;
+            background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+        #wheel {
+            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
+            filter: drop-shadow(0 10px 25px rgba(0,0,0,0.15));
+            max-width: 100%;
+            height: auto;
+            will-change: transform;
+        }
+        .spin-button {
+            background: linear-gradient(45deg, #6366f1, #a855f7, #ec4899);
+            background-size: 200% 200%;
+            animation: gradientBG 5s ease infinite;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .letter-winner {
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+            animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        .pointer-active { animation: pointerShake 0.15s infinite; }
+        @keyframes pointerShake {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            50% { transform: translateX(-50%) rotate(-10deg); }
+        }
+        .title-glow { text-shadow: 0 0 25px rgba(99, 102, 241, 0.15); }
+        .overflow-fix { overflow: hidden; width: 100%; position: relative; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 10px; }
+        
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
-<body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="he" dir="rtl"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;אתגר האותיות - מהדורת כיתה&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&amp;display=swap" rel="stylesheet"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Assistant', sans-serif;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-attachment: fixed;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>overflow-x: hidden;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>-webkit-tap-highlight-color: transparent;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.glass {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: rgba(255, 255, 255, 0.75);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>backdrop-filter: blur(12px);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>-webkit-backdrop-filter: blur(12px);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid rgba(255, 255, 255, 0.4);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#wheel {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>filter: drop-shadow(0 10px 25px rgba(0,0,0,0.15));</p>
-<p class="p1"><span class="Apple-converted-space">            </span>max-width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>height: auto;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>will-change: transform;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.spin-button {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: linear-gradient(45deg, #6366f1, #a855f7, #ec4899);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-size: 200% 200%;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>animation: gradientBG 5s ease infinite;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>@keyframes gradientBG {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>0% { background-position: 0% 50%; }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>50% { background-position: 100% 50%; }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>100% { background-position: 0% 50%; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.letter-winner {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>@keyframes bounceIn {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>0% { transform: scale(0); opacity: 0; }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>60% { transform: scale(1.2); opacity: 1; }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>100% { transform: scale(1); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.pointer-active { animation: pointerShake 0.15s infinite; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>@keyframes pointerShake {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>0%, 100% { transform: translateX(-50%) rotate(0deg); }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>50% { transform: translateX(-50%) rotate(-10deg); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.title-glow { text-shadow: 0 0 25px rgba(99, 102, 241, 0.15); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.overflow-fix { overflow: hidden; width: 100%; position: relative; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>::-webkit-scrollbar { width: 6px; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 10px; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Loading Spinner */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.loader {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border: 4px solid rgba(255,255,255,0.3);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-top: 4px solid #6366f1;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>width: 40px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>height: 40px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>animation: spin 1s linear infinite;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body class="min-h-screen flex flex-col items-center py-4 md:py-8 px-4 overflow-fix"&gt;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">    </span>&lt;!-- רקע דקורטיבי --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-20"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-200 rounded-full blur-[100px]"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-pink-200 rounded-full blur-[100px]"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">    </span>&lt;!-- מסך התחברות (Lobby) --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/40 backdrop-blur-md"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="glass p-8 md:p-12 rounded-[2rem] w-11/12 max-w-md text-center shadow-2xl relative overflow-hidden"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="loginLoader" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="loader mb-4"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-indigo-600 font-bold animate-pulse"&gt;מתחבר לשרת המשחק...&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-3xl font-black text-slate-800 mb-2"&gt;ברוכים הבאים&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-slate-500 mb-8 font-semibold"&gt;לאתגר האותיות הכיתתי&lt;/p&gt;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="text" id="playerNameInput" placeholder="הכניסו את שמכם..." class="w-full px-5 py-4 bg-white/80 border-2 border-indigo-100 rounded-xl text-lg font-bold text-center outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all mb-6"&gt;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-indigo-50/80 border border-indigo-100 p-5 rounded-2xl mb-6 shadow-sm"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3 class="font-bold text-indigo-800 mb-3 text-sm text-right"&gt;תלמידים - היכנסו לחדר קיים:&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex gap-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="text" id="roomCodeInput" placeholder="קוד חדר" class="w-1/2 px-4 py-3 bg-white border border-indigo-200 rounded-xl text-center font-black text-xl text-indigo-700 outline-none focus:ring-2 focus:ring-indigo-400"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button onclick="joinGame('student')" class="w-1/2 py-3 bg-indigo-600 text-white font-black rounded-xl shadow-md hover:bg-indigo-700 transition-all"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                        </span>היכנסו!</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="border-t border-slate-200 pt-5"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3 class="font-bold text-slate-500 mb-3 text-sm text-right"&gt;מורים - פתחו חדר חדש:&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex flex-col gap-3"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="number" id="targetStudentsInput" placeholder="כמה תלמידים ישתתפו במשחק?" class="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-center font-bold text-purple-700 outline-none focus:ring-2 focus:ring-purple-400"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button onclick="joinGame('teacher')" class="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black text-lg rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                        </span>✨ פתיחת חדר משחק</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">    </span>&lt;!-- כותרת ראשית --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;header id="mainHeader" class="text-center mb-6 md:mb-10 w-full max-w-2xl px-2 hidden"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex flex-col md:flex-row justify-between items-center bg-white/60 px-4 py-3 rounded-2xl shadow-sm mb-4 border border-white/50 gap-3"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="flex items-center gap-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span id="userRoleBadge" class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md text-xs font-bold"&gt;&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span id="userNameDisplay" class="font-bold text-slate-700"&gt;&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-indigo-100 text-indigo-800 px-5 py-1.5 rounded-xl font-black tracking-widest text-lg shadow-inner border border-indigo-200"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                </span>קוד חדר: &lt;span id="displayRoomCode" class="text-indigo-600"&gt;&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="font-black text-indigo-600 flex items-center gap-1"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span&gt;ניקוד:&lt;/span&gt; &lt;span id="userScoreDisplay" class="text-xl"&gt;0&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1 class="text-3xl md:text-5xl lg:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-br from-slate-900 via-indigo-700 to-indigo-900 leading-tight title-glow"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>אתגר האותיות</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/header&gt;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">    </span>&lt;!-- אזור המשחק המרכזי --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;main id="gameMain" class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start hidden"&gt;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>&lt;!-- עמודה: קטגוריות (צד ימין) --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="lg:col-span-3 space-y-4 md:space-y-6 order-2 lg:order-1"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="glass p-5 rounded-[1.5rem] md:rounded-[2rem]"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3 class="text-lg font-bold mb-3 text-slate-800 flex items-center justify-between"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="flex items-center gap-2"&gt;&lt;span&gt;📋&lt;/span&gt; קטגוריות&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="categoriesList" class="grid grid-cols-1 gap-2 mb-4 max-h-[200px] overflow-y-auto pr-1"&gt;&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="teacherCategoryControls" class="hidden flex gap-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="text" id="newCategoryInput" placeholder="הוסף קטגוריה..." class="flex-1 px-3 py-2 bg-white/50 border border-white/40 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-400"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button onclick="addCategory()" class="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-xl font-bold"&gt;+&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>&lt;!-- עמודה: גלגל (מרכזית) --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="lg:col-span-6 flex flex-col items-center order-1 lg:order-2 px-2 relative"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="wheelContainer" class="relative w-full max-w-[280px] md:max-w-[400px] aspect-square"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="pointer" class="absolute -top-4 left-1/2 -translate-x-1/2 z-30 filter drop-shadow-md"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;svg width="35" height="45" viewBox="0 0 50 60" fill="none"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;path d="M25 60C25 60 50 25.5 50 15C50 6.71573 43.2843 0 35 0H15C6.71573 0 0 6.71573 0 15C0 25.5 25 60 25 60Z" fill="#F43F5E"/&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;circle cx="25" cy="18" r="8" fill="white" fill-opacity="0.9"/&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/svg&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;canvas id="wheel" width="600" height="600" class="w-full h-full rounded-full"&gt;&lt;/canvas&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="absolute inset-0 rounded-full border-[8px] md:border-[10px] border-white/80 pointer-events-none shadow-[inset_0_0_15px_rgba(0,0,0,0.05)]"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="teacherControls" class="hidden w-full flex flex-col items-center mt-6"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex flex-col sm:flex-row items-stretch justify-center gap-3 w-full max-w-lg"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="connectionStatus" class="flex-1 bg-blue-50 text-blue-700 font-bold px-4 py-3 rounded-2xl border border-blue-200 shadow-sm text-center transition-colors flex flex-col justify-center items-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="text-sm mb-1"&gt;תלמידים מחוברים:&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="text-2xl font-black"&gt;&lt;span id="connectedStudentsCount"&gt;0&lt;/span&gt; / &lt;span id="targetStudentsCount"&gt;0&lt;/span&gt;&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex-1 flex flex-col justify-center gap-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="spinBtn" onclick="teacherSpinWheel()" class="spin-button text-white text-xl font-black py-4 px-4 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 w-full h-full"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                            </span>סובב את הגלגל!</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="forceEnableSpin()" id="forceSpinBtn" class="mt-3 text-blue-500 font-bold hover:text-blue-700 transition text-xs hidden"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                    </span>התחל למרות שחסרים תלמידים</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="teacherResetGame()" class="mt-4 py-2 text-indigo-500 font-bold bg-white/50 border border-indigo-100 rounded-xl hover:bg-white transition text-xs px-6"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                    </span>🔄 איפוס משחק (מחיקת היסטוריה)</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="studentWaitingText" class="mt-8 text-center hidden"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-xl font-bold text-slate-500 animate-pulse"&gt;ממתינים למורה שיסובב את הגלגל...&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="result" class="mt-4 text-6xl md:text-8xl font-black h-20 md:h-24 flex items-center justify-center"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>&lt;!-- עמודה: טבלת מובילים (צד שמאל) --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="lg:col-span-3 space-y-4 md:space-y-6 order-3"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="glass p-5 rounded-[1.5rem] md:rounded-[2rem]"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3 class="text-lg font-bold mb-3 text-slate-800"&gt;🏆 טבלת מובילים&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="leaderboard" class="space-y-2 max-h-[250px] overflow-y-auto pr-1"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                    </span>&lt;!-- ימולא אוטומטית --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/main&gt;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">    </span>&lt;!-- מודל תשובות (לתלמיד) --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="answerModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-white/95 backdrop-blur-md p-6 md:p-8 rounded-[2rem] w-11/12 max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform duration-300"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="text-center mb-6"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="text-indigo-500 font-bold text-sm mb-1 animate-pulse"&gt;מהרו! הראשון שמסיים עוצר את השעון!&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="modalBigLetter" class="text-7xl md:text-9xl font-black text-indigo-600 drop-shadow-lg mb-2"&gt;א&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="h-1 w-20 bg-gradient-to-r from-indigo-500 to-pink-500 mx-auto rounded-full"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="answerInputs" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-8"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                </span>&lt;!-- השדות ייווצרו כאן דינמית --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="flex justify-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="studentSubmitAnswers()" class="px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black rounded-2xl shadow-xl hover:scale-105 active:scale-95 text-lg w-full sm:w-auto"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                    </span>סיימתי!</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">    </span>&lt;!-- מודל המתנה לתלמידים --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="waitingModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md hidden"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-white p-8 rounded-[2rem] text-center max-w-sm w-11/12 shadow-2xl"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="text-5xl mb-4"&gt;⏱️&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 id="waitingModalTitle" class="text-2xl font-black text-slate-800 mb-2"&gt;הסיבוב הסתיים!&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;p id="waitingModalDesc" class="text-slate-600 font-semibold mb-6"&gt;המורה בודק את התשובות עכשיו...&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="loader mx-auto border-indigo-500 border-t-indigo-200"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">    </span>&lt;!-- מודל בדיקה למורה --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="evaluationModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md hidden"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-white p-6 md:p-8 rounded-[2rem] w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-2xl font-black text-slate-800 mb-1 border-b pb-4"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                </span>בדיקת תשובות: &lt;span id="evalStudentName" class="text-indigo-600"&gt;&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-indigo-50 text-indigo-800 px-4 py-2 rounded-lg font-bold text-sm mb-6 inline-block mt-4"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                </span>אות הסיבוב: &lt;span id="evalLetter" class="text-xl"&gt;&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="evalAnswersList" class="space-y-3 mb-8"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                </span>&lt;!-- תשובות התלמיד יופיעו כאן --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;label class="block font-bold text-slate-700 mb-4 text-lg"&gt;כמה נקודות מגיע לו?&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center justify-center gap-4 mb-6"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="range" id="evalScoreSlider" min="0" max="10" value="10" class="w-full max-w-xs accent-indigo-600" oninput="document.getElementById('evalScoreValue').innerText = this.value"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span id="evalScoreValue" class="text-3xl font-black text-indigo-600 w-12"&gt;10&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="teacherSubmitEvaluation()" class="w-full py-4 bg-green-500 text-white font-black text-xl rounded-xl shadow-lg hover:bg-green-600 transition active:scale-95"&gt;</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                    </span>אשר והענק נקודות!</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">    </span>&lt;!-- סקריפטים של Firebase והמשחק --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script type="module"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>// אתחול Firebase</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const firebaseConfig = {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>apiKey: "AIzaSyBVc3GaUaLFOyGNUba7JVHU7xMdHXYPzKk",</p>
-<p class="p1"><span class="Apple-converted-space">            </span>authDomain: "countrycity-c7293.firebaseapp.com",</p>
-<p class="p1"><span class="Apple-converted-space">            </span>projectId: "countrycity-c7293",</p>
-<p class="p1"><span class="Apple-converted-space">            </span>storageBucket: "countrycity-c7293.firebasestorage.app",</p>
-<p class="p1"><span class="Apple-converted-space">            </span>messagingSenderId: "480935929836",</p>
-<p class="p1"><span class="Apple-converted-space">            </span>appId: "1:480935929836:web:1e02b33694e97b4b27c2c9",</p>
-<p class="p1"><span class="Apple-converted-space">            </span>measurementId: "G-PJNT2TP6PD"</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const app = initializeApp(firebaseConfig);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const auth = getAuth(app);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const db = getFirestore(app);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const appId = typeof __app_id !== 'undefined' ? __app_id : 'letter-challenge-v1';</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>// משתני משחק וגלובלים</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let currentUser = null; // { uid, name, role, score }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let currentGameState = null;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let unsubscribeState = null;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let unsubscribePlayers = null;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let hasAutoGradedThisRound = false;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let currentStudentsCount = 0; // מעקב אחר כמות התלמידים המחוברים</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const originalAlphabet = "אבגדהוזחטיכלמנסעפצקרשת".split("");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const wheelColors = ['#6366f1', '#8b5cf6', '#d946ef', '#ec4899', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6'];</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const canvas = document.getElementById("wheel");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const ctx = canvas.getContext("2d");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const audioCtx = new (window.AudioContext || window.webkitAudioContext)();</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>// הפניות (References) של Firestore</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let roomId = null;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let stateRef = null;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let playersRef = null;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let getMyPlayerRef = null;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>// פונקציית צלילים</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function playTick(freq = 250, duration = 0.05) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (audioCtx.state === 'suspended') return;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const osc = audioCtx.createOscillator();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const gain = audioCtx.createGain();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>osc.type = 'sine';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>osc.frequency.setValueAtTime(freq, audioCtx.currentTime);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>gain.gain.setValueAtTime(0.05, audioCtx.currentTime);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>osc.connect(gain);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>gain.connect(audioCtx.destination);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>osc.start();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>osc.stop(audioCtx.currentTime + duration);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>// --- אתחול והתחברות ---</p>
-<p class="p1"><span class="Apple-converted-space">        </span>async function init() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>try {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (typeof __initial_auth_token !== 'undefined' &amp;&amp; __initial_auth_token) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>await signInWithCustomToken(auth, __initial_auth_token);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>await signInAnonymously(auth);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>} catch (error) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>console.error("Auth error:", error);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>alert("שגיאה בהתחברות לשרת. נסו לרענן את העמוד.");</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>onAuthStateChanged(auth, user =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('loginLoader').classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (user) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>window.firebaseUser = user; // נשמור ב-window לגישה קלה</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>window.joinGame = async (role) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const nameInput = document.getElementById('playerNameInput').value.trim();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (!nameInput) return alert("אנא הכניסו שם!");</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (!window.firebaseUser) return alert("טרם התחברנו לשרת, אנא המתינו שניה.");</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>let targetStudents = 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (role === 'student') {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>roomId = document.getElementById('roomCodeInput').value.trim();</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (!roomId) return alert("אנא הכניסו קוד חדר שמסר המורה!");</p>
-<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                </span>// מורה - קליטת מספר תלמידים ויצירת קוד חדר</p>
-<p class="p1"><span class="Apple-converted-space">                </span>targetStudents = parseInt(document.getElementById('targetStudentsInput').value);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (!targetStudents || targetStudents &lt;= 0) return alert("אנא הגדירו כמה תלמידים ישתתפו במשחק!");</p>
-<p class="p1"><span class="Apple-converted-space">                </span>roomId = Math.floor(1000 + Math.random() * 9000).toString();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// עדכון הפניות Firestore לפי קוד החדר הספציפי</p>
-<p class="p1"><span class="Apple-converted-space">            </span>stateRef = doc(db, 'artifacts', appId, 'public', 'data', 'gameStates', roomId);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>playersRef = collection(db, 'artifacts', appId, 'public', 'data', `room_${roomId}_players`);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>getMyPlayerRef = () =&gt; doc(db, 'artifacts', appId, 'public', 'data', `room_${roomId}_players`, currentUser.uid);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (role === 'student') {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const snap = await getDoc(stateRef);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (!snap.exists()) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>return alert("החדר לא קיים! אנא בדקו שוב את הקוד שהזנתם.");</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>currentUser = {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>uid: window.firebaseUser.uid,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>name: nameInput,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>role: role,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>score: 0</p>
-<p class="p1"><span class="Apple-converted-space">            </span>};</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// יצירת/עדכון שחקן במסד הנתונים</p>
-<p class="p1"><span class="Apple-converted-space">            </span>await setDoc(getMyPlayerRef(), currentUser);</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// אם זה מורה, מאתחלים חדר חדש ונקי</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (role === 'teacher') {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>await setDoc(stateRef, {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>status: 'waiting',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>alphabet: [...originalAlphabet],</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>categories: [</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>{ id: 1, name: 'ארץ', icon: '🌍' }, { id: 2, name: 'עיר', icon: '🏙️' },</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>{ id: 3, name: 'חיה', icon: '🦁' }, { id: 4, name: 'צומח', icon: '🌱' },</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>{ id: 5, name: 'דומם', icon: '📦' }, { id: 6, name: 'שם', icon: '👤' }</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>],</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>spinTarget: 0,</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>currentLetter: '',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>winnerData: null,</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>targetStudents: targetStudents // שמירת כמות התלמידים הרצויה</p>
-<p class="p1"><span class="Apple-converted-space">                </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>setupUI();</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// הערה: הסרנו את קריאת ה-startListeners השגויה (היא שגרמה לגלגל להיתקע)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function setupUI() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('loginScreen').classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('mainHeader').classList.remove('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('gameMain').classList.remove('hidden');</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('userNameDisplay').innerText = currentUser.name;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('displayRoomCode').innerText = roomId;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// חשיפת כפתורי המורה או מסך ההמתנה לתלמיד (החלק שהיה חסר)</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (currentUser.role === 'teacher') {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('teacherControls').classList.remove('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('teacherCategoryControls').classList.remove('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('studentWaitingText').classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('teacherControls').classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('teacherCategoryControls').classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>document.getElementById('studentWaitingText').classList.remove('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>unsubscribeState = onSnapshot(stateRef, (docSnap) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (docSnap.exists()) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const data = docSnap.data();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>handleStateUpdate(data);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}, (err) =&gt; console.error("State sync error:", err));</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// האזנה לטבלת שחקנים</p>
-<p class="p1"><span class="Apple-converted-space">            </span>unsubscribePlayers = onSnapshot(playersRef, (snapshot) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>let players = [];</p>
-<p class="p1"><span class="Apple-converted-space">                </span>snapshot.forEach(doc =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const p = doc.data();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>players.push(p);</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>if (p.uid === currentUser.uid) {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>currentUser.score = p.score;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>document.getElementById('userScoreDisplay').innerText = p.score;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>});</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                </span>// עדכון טבלת מובילים (סינון המורה מהרשימה)</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const studentsOnly = players.filter(p =&gt; p.role === 'student');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>studentsOnly.sort((a, b) =&gt; b.score - a.score);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const lbContainer = document.getElementById('leaderboard');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>lbContainer.innerHTML = studentsOnly.map(p =&gt; `</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex justify-between items-center p-2 rounded-xl border ${p.uid === currentUser.uid ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-100'} shadow-sm text-sm"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="flex items-center gap-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;span&gt;👨‍🎓&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;span class="font-bold text-slate-700"&gt;${p.name}&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="font-black text-indigo-600"&gt;${p.score} &lt;span class="text-[10px] text-slate-400 font-normal"&gt;נק'&lt;/span&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>`).join('');</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                </span>// עדכון מספר התלמידים למורה</p>
-<p class="p1"><span class="Apple-converted-space">                </span>currentStudentsCount = studentsOnly.length;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>updateTeacherSpinButton();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function updateTeacherSpinButton() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (!currentGameState || !currentUser || currentUser.role !== 'teacher') return;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const spinBtn = document.getElementById('spinBtn');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const target = currentGameState.targetStudents || 0;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('connectedStudentsCount').innerText = currentStudentsCount;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('targetStudentsCount').innerText = target;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (currentGameState.status === 'waiting') {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (currentStudentsCount &lt; target) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>spinBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>spinBtn.innerText = "ממתין לתלמידים...";</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>document.getElementById('connectionStatus').classList.replace('bg-green-50', 'bg-blue-50');</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>document.getElementById('connectionStatus').classList.replace('text-green-700', 'text-blue-700');</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>document.getElementById('forceSpinBtn').classList.remove('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>spinBtn.disabled = false;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>spinBtn.innerText = "סובב את הגלגל!";</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>document.getElementById('connectionStatus').classList.replace('bg-blue-50', 'bg-green-50');</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>document.getElementById('connectionStatus').classList.replace('text-blue-700', 'text-green-700');</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>document.getElementById('forceSpinBtn').classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>// --- טיפול במצבי המשחק המרכזיים ---</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let tickInterval = null;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function handleStateUpdate(data) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>currentGameState = data;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// עדכון רשימות ויזואליות</p>
-<p class="p1"><span class="Apple-converted-space">            </span>renderCategories(data.categories || []);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>drawWheel(data.alphabet || []);</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// ניהול מצבים</p>
-<p class="p1"><span class="Apple-converted-space">            </span>switch (data.status) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>case 'waiting':</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>resetModals();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>document.getElementById('result').innerHTML = "";</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>hasAutoGradedThisRound = false;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>canvas.style.transform = `rotate(${data.spinTarget}deg)`;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>updateTeacherSpinButton();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>break;</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>case 'spinning':</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>resetModals();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>if (currentUser &amp;&amp; currentUser.role === 'teacher') {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>document.getElementById('spinBtn').disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>document.getElementById('spinBtn').innerText = "מגריל...";</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>document.getElementById('forceSpinBtn').classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>document.getElementById('result').innerHTML = "";</p>
-<p class="p2"><span class="Apple-converted-space">                    </span></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>if (audioCtx.state === 'suspended') audioCtx.resume();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>document.getElementById('pointer').classList.add("pointer-active");</p>
-<p class="p2"><span class="Apple-converted-space">                    </span></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                    </span>// סיבוב ויזואלי לכולם</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>canvas.style.transform = `rotate(${data.spinTarget}deg)`;</p>
-<p class="p2"><span class="Apple-converted-space">                    </span></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                    </span>// צליל סיבוב מקומי</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>if (tickInterval) clearInterval(tickInterval);</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>tickInterval = setInterval(() =&gt; playTick(280), 160);</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>setTimeout(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>clearInterval(tickInterval);</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>document.getElementById('pointer').classList.remove("pointer-active");</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>}, 4800);</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>break;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>case 'answering':</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>resetModals();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>document.getElementById('result').innerHTML = `&lt;span class="letter-winner text-indigo-600"&gt;${data.currentLetter}&lt;/span&gt;`;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>hasAutoGradedThisRound = false;</p>
-<p class="p2"><span class="Apple-converted-space">                    </span></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                    </span>// אם אני תלמיד, פתח את מודל התשובות</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>if (currentUser.role === 'student') {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>openAnswerModal(data.currentLetter, data.categories);</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>break;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>case 'evaluating':</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>if (currentUser.role === 'teacher') {</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                        </span>// המורה בודק את המנצח</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>openEvaluationModal(data.winnerData);</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>} else if (currentUser.role === 'student') {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>closeAnswerModal();</p>
-<p class="p2"><span class="Apple-converted-space">                        </span></p>
-<p class="p1"><span class="Apple-converted-space">                        </span>if (data.winnerData.uid === currentUser.uid) {</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                            </span>// אני המנצח שסיים ראשון</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>showWaitingModal("כל הכבוד!", "אתה הראשון שסיים. המורה בודק את הטופס שלך כעת.");</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>} else {</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                            </span>// אני לא המנצח. מגיע לי נקודות על מה שהספקתי!</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>showWaitingModal("הסיבוב ננעל!", `&lt;b&gt;${data.winnerData.name}&lt;/b&gt; סיים ראשון. המורה בודק את תשובותיו.`);</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>autoGradeMyIncompleteForm();</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>break;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>// --- לוגיקה ציור וממשק ---</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function renderCategories(cats) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const container = document.getElementById("categoriesList");</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const isTeacher = currentUser &amp;&amp; currentUser.role === 'teacher';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>container.innerHTML = cats.map((cat, index) =&gt; `</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="category-item flex items-center justify-between p-2 bg-white/50 rounded-xl border border-white/40 text-xs group"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex items-center gap-2"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="w-6 h-6 flex items-center justify-center bg-indigo-100 rounded-lg text-[10px]"&gt;${cat.icon || '🏷️'}&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="font-semibold text-slate-700"&gt;${cat.name}&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>${isTeacher ? `&lt;button onclick="removeCategory(${index})" class="opacity-0 lg:group-hover:opacity-100 text-red-400 hover:text-red-600 font-bold px-2"&gt;✕&lt;/button&gt;` : ''}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>`).join("");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function drawWheel(alphabet) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const centerX = canvas.width / 2;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const centerY = canvas.height / 2;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const radius = centerX - 15;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>ctx.clearRect(0, 0, canvas.width, canvas.height);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (alphabet.length === 0) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = "#cbd5e1";</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath(); ctx.arc(centerX, centerY, radius, 0, Math.PI * 2); ctx.fill();</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = "white"; ctx.textAlign = "center"; ctx.font = "bold 24px Assistant";</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText("נגמרו האותיות", centerX, centerY);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const step = (Math.PI * 2) / alphabet.length;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>alphabet.forEach((letter, i) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const angle = i * step;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = wheelColors[i % wheelColors.length];</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(centerX, centerY);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.arc(centerX, centerY, radius, angle, angle + step);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.fill();</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.save();</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.translate(centerX, centerY);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.rotate(angle + step / 2);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.textAlign = "right";</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = "white";</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const fontSize = alphabet.length &gt; 15 ? 32 : (alphabet.length &gt; 5 ? 40 : 55);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.font = `bold ${fontSize}px Assistant`;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText(letter, radius - 35, 12);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>ctx.restore();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// עיגול פנימי</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 45);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>grad.addColorStop(0, '#ffffff'); grad.addColorStop(1, '#f1f5f9');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath(); ctx.arc(centerX, centerY, 45, 0, Math.PI * 2);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillStyle = grad; ctx.fill();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>// --- פעולות מורה ---</p>
-<p class="p1"><span class="Apple-converted-space">        </span>window.forceEnableSpin = () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('spinBtn').disabled = false;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('spinBtn').innerText = "סובב את הגלגל!";</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('forceSpinBtn').classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>window.teacherSpinWheel = async () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (!currentGameState || currentGameState.alphabet.length === 0 || currentGameState.status === 'spinning') return;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const extraSpin = Math.floor(Math.random() * 360) + 2160;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const newRotation = (currentGameState.spinTarget || 0) + extraSpin;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// עדכון הסטטוס לסחרור - כל המסכים מתחילים להסתובב</p>
-<p class="p1"><span class="Apple-converted-space">            </span>await updateDoc(stateRef, {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>status: 'spinning',</p>
-<p class="p1"><span class="Apple-converted-space">                </span>spinTarget: newRotation</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// המורה מחשב בשקט את האות שתיבחר ומתזמן את סיום הסיבוב</p>
-<p class="p1"><span class="Apple-converted-space">            </span>setTimeout(async () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const actualRot = newRotation % 360;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const segmentSize = 360 / currentGameState.alphabet.length;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const index = Math.floor((360 - (actualRot % 360) + 270) % 360 / segmentSize);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const letter = currentGameState.alphabet[index % currentGameState.alphabet.length];</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>const newAlphabet = [...currentGameState.alphabet];</p>
-<p class="p1"><span class="Apple-converted-space">                </span>newAlphabet.splice(index % currentGameState.alphabet.length, 1);</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                </span>// מעבר לשלב התשובות</p>
-<p class="p1"><span class="Apple-converted-space">                </span>await updateDoc(stateRef, {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>status: 'answering',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>currentLetter: letter,</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>alphabet: newAlphabet</p>
-<p class="p1"><span class="Apple-converted-space">                </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}, 5000);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>window.teacherResetGame = async () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(confirm("האם לאפס את כל המשחק?")) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>await updateDoc(stateRef, {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>status: 'waiting',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>alphabet: [...originalAlphabet],</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>currentLetter: '',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>spinTarget: 0,</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>winnerData: null</p>
-<p class="p1"><span class="Apple-converted-space">                </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>window.addCategory = async () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const input = document.getElementById("newCategoryInput");</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const name = input.value.trim();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (name &amp;&amp; currentGameState) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const updatedCats = [...currentGameState.categories, { id: Date.now(), name: name, icon: '🏷️' }];</p>
-<p class="p1"><span class="Apple-converted-space">                </span>await updateDoc(stateRef, { categories: updatedCats });</p>
-<p class="p1"><span class="Apple-converted-space">                </span>input.value = "";</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>window.removeCategory = async (index) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (currentGameState) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const updatedCats = [...currentGameState.categories];</p>
-<p class="p1"><span class="Apple-converted-space">                </span>updatedCats.splice(index, 1);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>await updateDoc(stateRef, { categories: updatedCats });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>window.teacherSubmitEvaluation = async () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const score = parseInt(document.getElementById('evalScoreSlider').value);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const winnerUid = currentGameState.winnerData.uid;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// הוספת ניקוד למנצח לתוך החדר הספציפי</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const winnerRef = doc(db, 'artifacts', appId, 'public', 'data', `room_${roomId}_players`, winnerUid);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>await updateDoc(winnerRef, { score: increment(score) });</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// סגירת הסיבוב וחזרה להמתנה</p>
-<p class="p1"><span class="Apple-converted-space">            </span>await updateDoc(stateRef, {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>status: 'waiting',</p>
-<p class="p1"><span class="Apple-converted-space">                </span>winnerData: null</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('evaluationModal').classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>// --- פעולות תלמיד ---</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function openAnswerModal(letter, categories) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const modal = document.getElementById('answerModal');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('modalBigLetter').innerText = letter;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const inputsContainer = document.getElementById('answerInputs');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>inputsContainer.innerHTML = categories.map(cat =&gt; `</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex flex-col gap-2 bg-slate-50/50 p-3 rounded-xl border border-slate-100 input-group" data-cat="${cat.name}"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="font-bold text-slate-700 flex items-center gap-2 text-sm md:text-base"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="bg-white p-1 rounded-md shadow-sm"&gt;${cat.icon || '🏷️'}&lt;/span&gt; ${cat.name}</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="text" placeholder="הקלידו כאן..." class="answer-input w-full px-4 py-3 rounded-lg border-2 border-indigo-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all text-base md:text-lg font-semibold text-slate-800 shadow-sm" dir="rtl"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>`).join('');</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>modal.classList.remove('opacity-0', 'pointer-events-none');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>setTimeout(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const firstInput = inputsContainer.querySelector('input');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (firstInput) firstInput.focus();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}, 300);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>window.studentSubmitAnswers = async () =&gt; {</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// קריאת כל התשובות</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const inputs = document.querySelectorAll('.input-group');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>let answers = [];</p>
-<p class="p1"><span class="Apple-converted-space">            </span>inputs.forEach(group =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const catName = group.getAttribute('data-cat');</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const val = group.querySelector('input').value.trim();</p>
-<p class="p1"><span class="Apple-converted-space">                </span>answers.push({ category: catName, value: val || '-' });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// וידוא שהמשחק עדיין בשלב תשובות כדי למנוע כפילויות לחיצה</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const snap = await getDoc(stateRef);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (snap.exists() &amp;&amp; snap.data().status === 'answering') {</p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">                </span>// אני סיימתי ראשון! נועל את הסיבוב!</p>
-<p class="p1"><span class="Apple-converted-space">                </span>await updateDoc(stateRef, {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>status: 'evaluating',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>winnerData: {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>uid: currentUser.uid,</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>name: currentUser.name,</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>answers: answers</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function closeAnswerModal() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('answerModal').classList.add('opacity-0', 'pointer-events-none');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>async function autoGradeMyIncompleteForm() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (hasAutoGradedThisRound) return;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>hasAutoGradedThisRound = true;</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">            </span>// ספירת השדות הלא ריקים</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const inputs = document.querySelectorAll('.answer-input');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>let pointsEarned = 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>inputs.forEach(input =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (input.value.trim() !== '') pointsEarned++;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (pointsEarned &gt; 0) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>await updateDoc(getMyPlayerRef(), { score: increment(pointsEarned) });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>// --- מודלים של עזר ---</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function showWaitingModal(title, desc) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('waitingModalTitle').innerText = title;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('waitingModalDesc').innerHTML = desc;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('waitingModal').classList.remove('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function openEvaluationModal(winnerData) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('evalStudentName').innerText = winnerData.name;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('evalLetter').innerText = currentGameState.currentLetter;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('evalScoreSlider').value = 10;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('evalScoreValue').innerText = "10";</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const list = document.getElementById('evalAnswersList');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>list.innerHTML = winnerData.answers.map(ans =&gt; `</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="font-bold text-slate-500 w-1/3"&gt;${ans.category}&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="font-black text-indigo-700 w-2/3 text-left ${ans.value === '-' ? 'text-slate-300' : ''}"&gt;${ans.value}&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>`).join('');</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('evaluationModal').classList.remove('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function resetModals() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('waitingModal').classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('evaluationModal').classList.add('hidden');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>closeAnswerModal();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p dir="rtl" class="p1"><span class="Apple-converted-space">        </span>// הפעלת האתחול בטעינה</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.addEventListener('DOMContentLoaded', init);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+<body class="min-h-screen flex flex-col items-center py-4 md:py-8 px-4 overflow-fix">
+
+    <!-- רקע דקורטיבי -->
+    <div class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-20">
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-200 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-pink-200 rounded-full blur-[100px]"></div>
+    </div>
+
+    <!-- מסך התחברות (Lobby) -->
+    <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/40 backdrop-blur-md">
+        <div class="glass p-8 md:p-12 rounded-[2rem] w-11/12 max-w-md text-center shadow-2xl relative overflow-hidden">
+            <div id="loginLoader" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
+                <div class="loader mb-4"></div>
+                <p class="text-indigo-600 font-bold animate-pulse">מתחבר לשרת המשחק...</p>
+            </div>
+            
+            <h1 class="text-3xl font-black text-slate-800 mb-2">ברוכים הבאים</h1>
+            <p class="text-slate-500 mb-8 font-semibold">לאתגר האותיות הכיתתי</p>
+            
+            <input type="text" id="playerNameInput" placeholder="הכניסו את שמכם..." class="w-full px-5 py-4 bg-white/80 border-2 border-indigo-100 rounded-xl text-lg font-bold text-center outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all mb-6">
+            
+            <div class="bg-indigo-50/80 border border-indigo-100 p-5 rounded-2xl mb-6 shadow-sm">
+                <h3 class="font-bold text-indigo-800 mb-3 text-sm text-right">תלמידים - היכנסו לחדר קיים:</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="roomCodeInput" placeholder="קוד חדר" class="w-1/2 px-4 py-3 bg-white border border-indigo-200 rounded-xl text-center font-black text-xl text-indigo-700 outline-none focus:ring-2 focus:ring-indigo-400">
+                    <button onclick="joinGame('student')" class="w-1/2 py-3 bg-indigo-600 text-white font-black rounded-xl shadow-md hover:bg-indigo-700 transition-all">
+                        היכנסו!
+                    </button>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-200 pt-5">
+                <h3 class="font-bold text-slate-500 mb-3 text-sm text-right">מורים - פתחו חדר חדש:</h3>
+                <div class="flex flex-col gap-3">
+                    <input type="number" id="targetStudentsInput" placeholder="כמה תלמידים ישתתפו במשחק?" class="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-center font-bold text-purple-700 outline-none focus:ring-2 focus:ring-purple-400">
+                    <button onclick="joinGame('teacher')" class="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black text-lg rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all">
+                        ✨ פתיחת חדר משחק
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- כותרת ראשית -->
+    <header id="mainHeader" class="text-center mb-6 md:mb-10 w-full max-w-2xl px-2 hidden">
+        <div class="flex flex-col md:flex-row justify-between items-center bg-white/60 px-4 py-3 rounded-2xl shadow-sm mb-4 border border-white/50 gap-3">
+            <div class="flex items-center gap-2">
+                <span id="userRoleBadge" class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md text-xs font-bold"></span>
+                <span id="userNameDisplay" class="font-bold text-slate-700"></span>
+            </div>
+            <div class="bg-indigo-100 text-indigo-800 px-5 py-1.5 rounded-xl font-black tracking-widest text-lg shadow-inner border border-indigo-200">
+                קוד חדר: <span id="displayRoomCode" class="text-indigo-600"></span>
+            </div>
+            <div class="font-black text-indigo-600 flex items-center gap-1">
+                <span>ניקוד:</span> <span id="userScoreDisplay" class="text-xl">0</span>
+            </div>
+        </div>
+        <h1 class="text-3xl md:text-5xl lg:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-br from-slate-900 via-indigo-700 to-indigo-900 leading-tight title-glow">
+            אתגר האותיות
+        </h1>
+    </header>
+
+    <!-- אזור המשחק המרכזי -->
+    <main id="gameMain" class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start hidden">
+        
+        <!-- עמודה: קטגוריות (צד ימין) -->
+        <div class="lg:col-span-3 space-y-4 md:space-y-6 order-2 lg:order-1">
+            <div class="glass p-5 rounded-[1.5rem] md:rounded-[2rem]">
+                <h3 class="text-lg font-bold mb-3 text-slate-800 flex items-center justify-between">
+                    <span class="flex items-center gap-2"><span>📋</span> קטגוריות</span>
+                </h3>
+                <div id="categoriesList" class="grid grid-cols-1 gap-2 mb-4 max-h-[200px] overflow-y-auto pr-1"></div>
+                
+                <div id="teacherCategoryControls" class="hidden flex gap-2">
+                    <input type="text" id="newCategoryInput" placeholder="הוסף קטגוריה..." class="flex-1 px-3 py-2 bg-white/50 border border-white/40 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-400">
+                    <button onclick="addCategory()" class="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-xl font-bold">+</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- עמודה: גלגל (מרכזית) -->
+        <div class="lg:col-span-6 flex flex-col items-center order-1 lg:order-2 px-2 relative">
+            <div id="wheelContainer" class="relative w-full max-w-[280px] md:max-w-[400px] aspect-square">
+                <div id="pointer" class="absolute -top-4 left-1/2 -translate-x-1/2 z-30 filter drop-shadow-md">
+                    <svg width="35" height="45" viewBox="0 0 50 60" fill="none">
+                        <path d="M25 60C25 60 50 25.5 50 15C50 6.71573 43.2843 0 35 0H15C6.71573 0 0 6.71573 0 15C0 25.5 25 60 25 60Z" fill="#F43F5E"/>
+                        <circle cx="25" cy="18" r="8" fill="white" fill-opacity="0.9"/>
+                    </svg>
+                </div>
+                <canvas id="wheel" width="600" height="600" class="w-full h-full rounded-full"></canvas>
+                <div class="absolute inset-0 rounded-full border-[8px] md:border-[10px] border-white/80 pointer-events-none shadow-[inset_0_0_15px_rgba(0,0,0,0.05)]"></div>
+            </div>
+
+            <div id="teacherControls" class="hidden w-full flex flex-col items-center mt-6">
+                <div class="flex flex-col sm:flex-row items-stretch justify-center gap-3 w-full max-w-lg">
+                    <div id="connectionStatus" class="flex-1 bg-blue-50 text-blue-700 font-bold px-4 py-3 rounded-2xl border border-blue-200 shadow-sm text-center transition-colors flex flex-col justify-center items-center">
+                        <span class="text-sm mb-1">תלמידים מחוברים:</span>
+                        <span class="text-2xl font-black"><span id="connectedStudentsCount">0</span> / <span id="targetStudentsCount">0</span></span>
+                    </div>
+                    <div class="flex-1 flex flex-col justify-center gap-2">
+                        <button id="spinBtn" onclick="teacherSpinWheel()" class="spin-button text-white text-xl font-black py-4 px-4 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 w-full h-full">
+                            סובב את הגלגל!
+                        </button>
+                    </div>
+                </div>
+                <button onclick="forceEnableSpin()" id="forceSpinBtn" class="mt-3 text-blue-500 font-bold hover:text-blue-700 transition text-xs hidden">
+                    התחל למרות שחסרים תלמידים
+                </button>
+                <button onclick="teacherResetGame()" class="mt-4 py-2 text-indigo-500 font-bold bg-white/50 border border-indigo-100 rounded-xl hover:bg-white transition text-xs px-6">
+                    🔄 איפוס משחק (מחיקת היסטוריה)
+                </button>
+            </div>
+            
+            <div id="studentWaitingText" class="mt-8 text-center hidden">
+                <p class="text-xl font-bold text-slate-500 animate-pulse">ממתינים למורה שיסובב את הגלגל...</p>
+            </div>
+
+            <div id="result" class="mt-4 text-6xl md:text-8xl font-black h-20 md:h-24 flex items-center justify-center"></div>
+        </div>
+
+        <!-- עמודה: טבלת מובילים (צד שמאל) -->
+        <div class="lg:col-span-3 space-y-4 md:space-y-6 order-3">
+            <div class="glass p-5 rounded-[1.5rem] md:rounded-[2rem]">
+                <h3 class="text-lg font-bold mb-3 text-slate-800">🏆 טבלת מובילים</h3>
+                <div id="leaderboard" class="space-y-2 max-h-[250px] overflow-y-auto pr-1">
+                    <!-- ימולא אוטומטית -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- מודל תשובות (לתלמיד) -->
+    <div id="answerModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white/95 backdrop-blur-md p-6 md:p-8 rounded-[2rem] w-11/12 max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform duration-300">
+            <div class="text-center mb-6">
+                <div class="text-indigo-500 font-bold text-sm mb-1 animate-pulse">מהרו! הראשון שמסיים עוצר את השעון!</div>
+                <div id="modalBigLetter" class="text-7xl md:text-9xl font-black text-indigo-600 drop-shadow-lg mb-2">א</div>
+                <div class="h-1 w-20 bg-gradient-to-r from-indigo-500 to-pink-500 mx-auto rounded-full"></div>
+            </div>
+            <div id="answerInputs" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-8">
+                <!-- השדות ייווצרו כאן דינמית -->
+            </div>
+            <div class="flex justify-center">
+                <button onclick="studentSubmitAnswers()" class="px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black rounded-2xl shadow-xl hover:scale-105 active:scale-95 text-lg w-full sm:w-auto">
+                    סיימתי!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- מודל המתנה לתלמידים -->
+    <div id="waitingModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md hidden">
+        <div class="bg-white p-8 rounded-[2rem] text-center max-w-sm w-11/12 shadow-2xl">
+            <div class="text-5xl mb-4">⏱️</div>
+            <h2 id="waitingModalTitle" class="text-2xl font-black text-slate-800 mb-2">הסיבוב הסתיים!</h2>
+            <p id="waitingModalDesc" class="text-slate-600 font-semibold mb-6">המורה בודק את התשובות עכשיו...</p>
+            <div class="loader mx-auto border-indigo-500 border-t-indigo-200"></div>
+        </div>
+    </div>
+
+    <!-- מודל בדיקה למורה -->
+    <div id="evaluationModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md hidden">
+        <div class="bg-white p-6 md:p-8 rounded-[2rem] w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <h2 class="text-2xl font-black text-slate-800 mb-1 border-b pb-4">
+                בדיקת תשובות: <span id="evalStudentName" class="text-indigo-600"></span>
+            </h2>
+            <div class="bg-indigo-50 text-indigo-800 px-4 py-2 rounded-lg font-bold text-sm mb-6 inline-block mt-4">
+                אות הסיבוב: <span id="evalLetter" class="text-xl"></span>
+            </div>
+            
+            <div id="evalAnswersList" class="space-y-3 mb-8">
+                <!-- תשובות התלמיד יופיעו כאן -->
+            </div>
+            
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center">
+                <label class="block font-bold text-slate-700 mb-4 text-lg">כמה נקודות מגיע לו?</label>
+                <div class="flex items-center justify-center gap-4 mb-6">
+                    <input type="range" id="evalScoreSlider" min="0" max="10" value="10" class="w-full max-w-xs accent-indigo-600" oninput="document.getElementById('evalScoreValue').innerText = this.value">
+                    <span id="evalScoreValue" class="text-3xl font-black text-indigo-600 w-12">10</span>
+                </div>
+                <button onclick="teacherSubmitEvaluation()" class="w-full py-4 bg-green-500 text-white font-black text-xl rounded-xl shadow-lg hover:bg-green-600 transition active:scale-95">
+                    אשר והענק נקודות!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- סקריפטים של Firebase והמשחק -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // אתחול Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVc3GaUaLFOyGNUba7JVHU7xMdHXYPzKk",
+            authDomain: "countrycity-c7293.firebaseapp.com",
+            projectId: "countrycity-c7293",
+            storageBucket: "countrycity-c7293.firebasestorage.app",
+            messagingSenderId: "480935929836",
+            appId: "1:480935929836:web:1e02b33694e97b4b27c2c9",
+            measurementId: "G-PJNT2TP6PD"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'letter-challenge-v1';
+
+        // משתני משחק וגלובלים
+        let currentUser = null; // { uid, name, role, score }
+        let currentGameState = null;
+        let unsubscribeState = null;
+        let unsubscribePlayers = null;
+        let hasAutoGradedThisRound = false;
+        let currentStudentsCount = 0; // מעקב אחר כמות התלמידים המחוברים
+
+        const originalAlphabet = "אבגדהוזחטיכלמנסעפצקרשת".split("");
+        const wheelColors = ['#6366f1', '#8b5cf6', '#d946ef', '#ec4899', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6'];
+        
+        const canvas = document.getElementById("wheel");
+        const ctx = canvas.getContext("2d");
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // הפניות (References) של Firestore
+        let roomId = null;
+        let stateRef = null;
+        let playersRef = null;
+        let getMyPlayerRef = null;
+
+        // פונקציית צלילים
+        function playTick(freq = 250, duration = 0.05) {
+            if (audioCtx.state === 'suspended') return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        // --- אתחול והתחברות ---
+        async function init() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth error:", error);
+                alert("שגיאה בהתחברות לשרת. נסו לרענן את העמוד.");
+            }
+        }
+
+        onAuthStateChanged(auth, user => {
+            document.getElementById('loginLoader').classList.add('hidden');
+            if (user) {
+                window.firebaseUser = user; // נשמור ב-window לגישה קלה
+            }
+        });
+
+        window.joinGame = async (role) => {
+            const nameInput = document.getElementById('playerNameInput').value.trim();
+            if (!nameInput) return alert("אנא הכניסו שם!");
+            if (!window.firebaseUser) return alert("טרם התחברנו לשרת, אנא המתינו שניה.");
+
+            let targetStudents = 0;
+            if (role === 'student') {
+                roomId = document.getElementById('roomCodeInput').value.trim();
+                if (!roomId) return alert("אנא הכניסו קוד חדר שמסר המורה!");
+            } else {
+                // מורה - קליטת מספר תלמידים ויצירת קוד חדר
+                targetStudents = parseInt(document.getElementById('targetStudentsInput').value);
+                if (!targetStudents || targetStudents <= 0) return alert("אנא הגדירו כמה תלמידים ישתתפו במשחק!");
+                roomId = Math.floor(1000 + Math.random() * 9000).toString();
+            }
+
+            // עדכון הפניות Firestore לפי קוד החדר הספציפי
+            stateRef = doc(db, 'artifacts', appId, 'public', 'data', 'gameStates', roomId);
+            playersRef = collection(db, 'artifacts', appId, 'public', 'data', `room_${roomId}_players`);
+            getMyPlayerRef = () => doc(db, 'artifacts', appId, 'public', 'data', `room_${roomId}_players`, currentUser.uid);
+
+            if (role === 'student') {
+                const snap = await getDoc(stateRef);
+                if (!snap.exists()) {
+                    return alert("החדר לא קיים! אנא בדקו שוב את הקוד שהזנתם.");
+                }
+            }
+
+            currentUser = {
+                uid: window.firebaseUser.uid,
+                name: nameInput,
+                role: role,
+                score: 0
+            };
+
+            // יצירת/עדכון שחקן במסד הנתונים
+            await setDoc(getMyPlayerRef(), currentUser);
+
+            // אם זה מורה, מאתחלים חדר חדש ונקי
+            if (role === 'teacher') {
+                await setDoc(stateRef, {
+                    status: 'waiting',
+                    alphabet: [...originalAlphabet],
+                    categories: [
+                        { id: 1, name: 'ארץ', icon: '🌍' }, { id: 2, name: 'עיר', icon: '🏙️' },
+                        { id: 3, name: 'חיה', icon: '🦁' }, { id: 4, name: 'צומח', icon: '🌱' },
+                        { id: 5, name: 'דומם', icon: '📦' }, { id: 6, name: 'שם', icon: '👤' }
+                    ],
+                    spinTarget: 0,
+                    currentLetter: '',
+                    winnerData: null,
+                    targetStudents: targetStudents // שמירת כמות התלמידים הרצויה
+                });
+            }
+
+            setupUI();
+            // הערה: הסרנו את קריאת ה-startListeners השגויה (היא שגרמה לגלגל להיתקע)
+        };
+
+        function setupUI() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainHeader').classList.remove('hidden');
+            document.getElementById('gameMain').classList.remove('hidden');
+            
+            document.getElementById('userNameDisplay').innerText = currentUser.name;
+            document.getElementById('displayRoomCode').innerText = roomId;
+
+            // חשיפת כפתורי המורה או מסך ההמתנה לתלמיד (החלק שהיה חסר)
+            if (currentUser.role === 'teacher') {
+                document.getElementById('teacherControls').classList.remove('hidden');
+                document.getElementById('teacherCategoryControls').classList.remove('hidden');
+                document.getElementById('studentWaitingText').classList.add('hidden');
+            } else {
+                document.getElementById('teacherControls').classList.add('hidden');
+                document.getElementById('teacherCategoryControls').classList.add('hidden');
+                document.getElementById('studentWaitingText').classList.remove('hidden');
+            }
+
+            unsubscribeState = onSnapshot(stateRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    handleStateUpdate(data);
+                }
+            }, (err) => console.error("State sync error:", err));
+
+            // האזנה לטבלת שחקנים
+            unsubscribePlayers = onSnapshot(playersRef, (snapshot) => {
+                let players = [];
+                snapshot.forEach(doc => {
+                    const p = doc.data();
+                    players.push(p);
+                    if (p.uid === currentUser.uid) {
+                        currentUser.score = p.score;
+                        document.getElementById('userScoreDisplay').innerText = p.score;
+                    }
+                });
+                // עדכון טבלת מובילים (סינון המורה מהרשימה)
+                const studentsOnly = players.filter(p => p.role === 'student');
+                studentsOnly.sort((a, b) => b.score - a.score);
+                const lbContainer = document.getElementById('leaderboard');
+                lbContainer.innerHTML = studentsOnly.map(p => `
+                    <div class="flex justify-between items-center p-2 rounded-xl border ${p.uid === currentUser.uid ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-100'} shadow-sm text-sm">
+                        <div class="flex items-center gap-2">
+                            <span>👨‍🎓</span>
+                            <span class="font-bold text-slate-700">${p.name}</span>
+                        </div>
+                        <div class="font-black text-indigo-600">${p.score} <span class="text-[10px] text-slate-400 font-normal">נק'</span></div>
+                    </div>
+                `).join('');
+                
+                // עדכון מספר התלמידים למורה
+                currentStudentsCount = studentsOnly.length;
+                updateTeacherSpinButton();
+            });
+        }
+
+        function updateTeacherSpinButton() {
+            if (!currentGameState || !currentUser || currentUser.role !== 'teacher') return;
+            
+            const spinBtn = document.getElementById('spinBtn');
+            const target = currentGameState.targetStudents || 0;
+            
+            document.getElementById('connectedStudentsCount').innerText = currentStudentsCount;
+            document.getElementById('targetStudentsCount').innerText = target;
+
+            if (currentGameState.status === 'waiting') {
+                if (currentStudentsCount < target) {
+                    spinBtn.disabled = true;
+                    spinBtn.innerText = "ממתין לתלמידים...";
+                    document.getElementById('connectionStatus').classList.replace('bg-green-50', 'bg-blue-50');
+                    document.getElementById('connectionStatus').classList.replace('text-green-700', 'text-blue-700');
+                    document.getElementById('forceSpinBtn').classList.remove('hidden');
+                } else {
+                    spinBtn.disabled = false;
+                    spinBtn.innerText = "סובב את הגלגל!";
+                    document.getElementById('connectionStatus').classList.replace('bg-blue-50', 'bg-green-50');
+                    document.getElementById('connectionStatus').classList.replace('text-blue-700', 'text-green-700');
+                    document.getElementById('forceSpinBtn').classList.add('hidden');
+                }
+            }
+        }
+
+        // --- טיפול במצבי המשחק המרכזיים ---
+        let tickInterval = null;
+
+        function handleStateUpdate(data) {
+            currentGameState = data;
+            
+            // עדכון רשימות ויזואליות
+            renderCategories(data.categories || []);
+            drawWheel(data.alphabet || []);
+
+            // ניהול מצבים
+            switch (data.status) {
+                case 'waiting':
+                    resetModals();
+                    document.getElementById('result').innerHTML = "";
+                    hasAutoGradedThisRound = false;
+                    canvas.style.transform = `rotate(${data.spinTarget}deg)`;
+                    updateTeacherSpinButton();
+                    break;
+                
+                case 'spinning':
+                    resetModals();
+                    if (currentUser && currentUser.role === 'teacher') {
+                        document.getElementById('spinBtn').disabled = true;
+                        document.getElementById('spinBtn').innerText = "מגריל...";
+                        document.getElementById('forceSpinBtn').classList.add('hidden');
+                    }
+                    document.getElementById('result').innerHTML = "";
+                    
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                    document.getElementById('pointer').classList.add("pointer-active");
+                    
+                    // סיבוב ויזואלי לכולם
+                    canvas.style.transform = `rotate(${data.spinTarget}deg)`;
+                    
+                    // צליל סיבוב מקומי
+                    if (tickInterval) clearInterval(tickInterval);
+                    tickInterval = setInterval(() => playTick(280), 160);
+                    setTimeout(() => {
+                        clearInterval(tickInterval);
+                        document.getElementById('pointer').classList.remove("pointer-active");
+                    }, 4800);
+                    break;
+
+                case 'answering':
+                    resetModals();
+                    document.getElementById('result').innerHTML = `<span class="letter-winner text-indigo-600">${data.currentLetter}</span>`;
+                    hasAutoGradedThisRound = false;
+                    
+                    // אם אני תלמיד, פתח את מודל התשובות
+                    if (currentUser.role === 'student') {
+                        openAnswerModal(data.currentLetter, data.categories);
+                    }
+                    break;
+
+                case 'evaluating':
+                    if (currentUser.role === 'teacher') {
+                        // המורה בודק את המנצח
+                        openEvaluationModal(data.winnerData);
+                    } else if (currentUser.role === 'student') {
+                        closeAnswerModal();
+                        
+                        if (data.winnerData.uid === currentUser.uid) {
+                            // אני המנצח שסיים ראשון
+                            showWaitingModal("כל הכבוד!", "אתה הראשון שסיים. המורה בודק את הטופס שלך כעת.");
+                        } else {
+                            // אני לא המנצח. מגיע לי נקודות על מה שהספקתי!
+                            showWaitingModal("הסיבוב ננעל!", `<b>${data.winnerData.name}</b> סיים ראשון. המורה בודק את תשובותיו.`);
+                            autoGradeMyIncompleteForm();
+                        }
+                    }
+                    break;
+            }
+        }
+
+        // --- לוגיקה ציור וממשק ---
+        function renderCategories(cats) {
+            const container = document.getElementById("categoriesList");
+            const isTeacher = currentUser && currentUser.role === 'teacher';
+            container.innerHTML = cats.map((cat, index) => `
+                <div class="category-item flex items-center justify-between p-2 bg-white/50 rounded-xl border border-white/40 text-xs group">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 flex items-center justify-center bg-indigo-100 rounded-lg text-[10px]">${cat.icon || '🏷️'}</span>
+                        <span class="font-semibold text-slate-700">${cat.name}</span>
+                    </div>
+                    ${isTeacher ? `<button onclick="removeCategory(${index})" class="opacity-0 lg:group-hover:opacity-100 text-red-400 hover:text-red-600 font-bold px-2">✕</button>` : ''}
+                </div>
+            `).join("");
+        }
+
+        function drawWheel(alphabet) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = centerX - 15;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (alphabet.length === 0) {
+                ctx.fillStyle = "#cbd5e1";
+                ctx.beginPath(); ctx.arc(centerX, centerY, radius, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = "white"; ctx.textAlign = "center"; ctx.font = "bold 24px Assistant";
+                ctx.fillText("נגמרו האותיות", centerX, centerY);
+                return;
+            }
+
+            const step = (Math.PI * 2) / alphabet.length;
+            alphabet.forEach((letter, i) => {
+                const angle = i * step;
+                ctx.beginPath();
+                ctx.fillStyle = wheelColors[i % wheelColors.length];
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, angle, angle + step);
+                ctx.fill();
+                
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(angle + step / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "white";
+                const fontSize = alphabet.length > 15 ? 32 : (alphabet.length > 5 ? 40 : 55);
+                ctx.font = `bold ${fontSize}px Assistant`;
+                ctx.fillText(letter, radius - 35, 12);
+                ctx.restore();
+            });
+
+            // עיגול פנימי
+            const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 45);
+            grad.addColorStop(0, '#ffffff'); grad.addColorStop(1, '#f1f5f9');
+            ctx.beginPath(); ctx.arc(centerX, centerY, 45, 0, Math.PI * 2);
+            ctx.fillStyle = grad; ctx.fill();
+        }
+
+        // --- פעולות מורה ---
+        window.forceEnableSpin = () => {
+            document.getElementById('spinBtn').disabled = false;
+            document.getElementById('spinBtn').innerText = "סובב את הגלגל!";
+            document.getElementById('forceSpinBtn').classList.add('hidden');
+        };
+
+        window.teacherSpinWheel = async () => {
+            if (!currentGameState || currentGameState.alphabet.length === 0 || currentGameState.status === 'spinning') return;
+            
+            const extraSpin = Math.floor(Math.random() * 360) + 2160; 
+            const newRotation = (currentGameState.spinTarget || 0) + extraSpin;
+
+            // עדכון הסטטוס לסחרור - כל המסכים מתחילים להסתובב
+            await updateDoc(stateRef, {
+                status: 'spinning',
+                spinTarget: newRotation
+            });
+
+            // המורה מחשב בשקט את האות שתיבחר ומתזמן את סיום הסיבוב
+            setTimeout(async () => {
+                const actualRot = newRotation % 360;
+                const segmentSize = 360 / currentGameState.alphabet.length;
+                const index = Math.floor((360 - (actualRot % 360) + 270) % 360 / segmentSize);
+                const letter = currentGameState.alphabet[index % currentGameState.alphabet.length];
+                
+                const newAlphabet = [...currentGameState.alphabet];
+                newAlphabet.splice(index % currentGameState.alphabet.length, 1);
+
+                // מעבר לשלב התשובות
+                await updateDoc(stateRef, {
+                    status: 'answering',
+                    currentLetter: letter,
+                    alphabet: newAlphabet
+                });
+            }, 5000);
+        };
+
+        window.teacherResetGame = async () => {
+            if(confirm("האם לאפס את כל המשחק?")) {
+                await updateDoc(stateRef, {
+                    status: 'waiting',
+                    alphabet: [...originalAlphabet],
+                    currentLetter: '',
+                    spinTarget: 0,
+                    winnerData: null
+                });
+            }
+        };
+
+        window.addCategory = async () => {
+            const input = document.getElementById("newCategoryInput");
+            const name = input.value.trim();
+            if (name && currentGameState) {
+                const updatedCats = [...currentGameState.categories, { id: Date.now(), name: name, icon: '🏷️' }];
+                await updateDoc(stateRef, { categories: updatedCats });
+                input.value = "";
+            }
+        };
+
+        window.removeCategory = async (index) => {
+            if (currentGameState) {
+                const updatedCats = [...currentGameState.categories];
+                updatedCats.splice(index, 1);
+                await updateDoc(stateRef, { categories: updatedCats });
+            }
+        };
+
+        window.teacherSubmitEvaluation = async () => {
+            const score = parseInt(document.getElementById('evalScoreSlider').value);
+            const winnerUid = currentGameState.winnerData.uid;
+            
+            // הוספת ניקוד למנצח לתוך החדר הספציפי
+            const winnerRef = doc(db, 'artifacts', appId, 'public', 'data', `room_${roomId}_players`, winnerUid);
+            await updateDoc(winnerRef, { score: increment(score) });
+
+            // סגירת הסיבוב וחזרה להמתנה
+            await updateDoc(stateRef, {
+                status: 'waiting',
+                winnerData: null
+            });
+            document.getElementById('evaluationModal').classList.add('hidden');
+        };
+
+        // --- פעולות תלמיד ---
+        function openAnswerModal(letter, categories) {
+            const modal = document.getElementById('answerModal');
+            document.getElementById('modalBigLetter').innerText = letter;
+
+            const inputsContainer = document.getElementById('answerInputs');
+            inputsContainer.innerHTML = categories.map(cat => `
+                <div class="flex flex-col gap-2 bg-slate-50/50 p-3 rounded-xl border border-slate-100 input-group" data-cat="${cat.name}">
+                    <label class="font-bold text-slate-700 flex items-center gap-2 text-sm md:text-base">
+                        <span class="bg-white p-1 rounded-md shadow-sm">${cat.icon || '🏷️'}</span> ${cat.name}
+                    </label>
+                    <input type="text" placeholder="הקלידו כאן..." class="answer-input w-full px-4 py-3 rounded-lg border-2 border-indigo-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all text-base md:text-lg font-semibold text-slate-800 shadow-sm" dir="rtl">
+                </div>
+            `).join('');
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                const firstInput = inputsContainer.querySelector('input');
+                if (firstInput) firstInput.focus();
+            }, 300);
+        }
+
+        window.studentSubmitAnswers = async () => {
+            // קריאת כל התשובות
+            const inputs = document.querySelectorAll('.input-group');
+            let answers = [];
+            inputs.forEach(group => {
+                const catName = group.getAttribute('data-cat');
+                const val = group.querySelector('input').value.trim();
+                answers.push({ category: catName, value: val || '-' });
+            });
+
+            // וידוא שהמשחק עדיין בשלב תשובות כדי למנוע כפילויות לחיצה
+            const snap = await getDoc(stateRef);
+            if (snap.exists() && snap.data().status === 'answering') {
+                // אני סיימתי ראשון! נועל את הסיבוב!
+                await updateDoc(stateRef, {
+                    status: 'evaluating',
+                    winnerData: {
+                        uid: currentUser.uid,
+                        name: currentUser.name,
+                        answers: answers
+                    }
+                });
+            }
+        };
+
+        function closeAnswerModal() {
+            document.getElementById('answerModal').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        async function autoGradeMyIncompleteForm() {
+            if (hasAutoGradedThisRound) return;
+            hasAutoGradedThisRound = true;
+
+            // ספירת השדות הלא ריקים
+            const inputs = document.querySelectorAll('.answer-input');
+            let pointsEarned = 0;
+            inputs.forEach(input => {
+                if (input.value.trim() !== '') pointsEarned++;
+            });
+
+            if (pointsEarned > 0) {
+                await updateDoc(getMyPlayerRef(), { score: increment(pointsEarned) });
+            }
+        }
+
+        // --- מודלים של עזר ---
+        function showWaitingModal(title, desc) {
+            document.getElementById('waitingModalTitle').innerText = title;
+            document.getElementById('waitingModalDesc').innerHTML = desc;
+            document.getElementById('waitingModal').classList.remove('hidden');
+        }
+
+        function openEvaluationModal(winnerData) {
+            document.getElementById('evalStudentName').innerText = winnerData.name;
+            document.getElementById('evalLetter').innerText = currentGameState.currentLetter;
+            document.getElementById('evalScoreSlider').value = 10;
+            document.getElementById('evalScoreValue').innerText = "10";
+            
+            const list = document.getElementById('evalAnswersList');
+            list.innerHTML = winnerData.answers.map(ans => `
+                <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                    <span class="font-bold text-slate-500 w-1/3">${ans.category}</span>
+                    <span class="font-black text-indigo-700 w-2/3 text-left ${ans.value === '-' ? 'text-slate-300' : ''}">${ans.value}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('evaluationModal').classList.remove('hidden');
+        }
+
+        function resetModals() {
+            document.getElementById('waitingModal').classList.add('hidden');
+            document.getElementById('evaluationModal').classList.add('hidden');
+            closeAnswerModal();
+        }
+
+        // הפעלת האתחול בטעינה
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>

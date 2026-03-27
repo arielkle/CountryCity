@@ -77,6 +77,41 @@
         <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-pink-200 rounded-full blur-[100px]"></div>
     </div>
 
+    <!-- מסך פתיחה והנחיות (Welcome Screen) -->
+    <div id="welcomeScreen" class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-indigo-900/40 backdrop-blur-md transition-opacity duration-500">
+        <div class="glass bg-white/95 p-6 md:p-10 rounded-[2rem] w-11/12 max-w-2xl text-center shadow-2xl relative overflow-hidden transform transition-transform">
+            <h1 class="text-4xl md:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-br from-slate-900 via-indigo-700 to-indigo-900 leading-tight title-glow mb-6">
+                ארץ עיר...
+            </h1>
+            
+            <div class="bg-indigo-50/80 rounded-2xl p-5 md:p-7 text-right mb-8 border border-indigo-100 shadow-inner text-slate-700">
+                <h2 class="text-xl md:text-2xl font-black text-indigo-800 mb-4 text-center">איך משחקים? (גם בלי מורה!)</h2>
+                <ul class="space-y-4 font-semibold text-sm md:text-base">
+                    <li class="flex items-start gap-3">
+                        <span class="text-indigo-500 text-xl leading-none mt-0.5">👑</span> 
+                        <span><strong>הקמת חדר:</strong> אחד המשתתפים לוקח על עצמו את תפקיד "מפעיל הגלגל". הוא ייכנס בתור מורה (יבחר ב"פתיחת חדר משחק").</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="text-indigo-500 text-xl leading-none mt-0.5">🤝</span> 
+                        <span><strong>הצטרפות לחדר:</strong> המפעיל יקבל קוד בן 4 ספרות. שאר השחקנים יזינו את שמם ואת הקוד בתיבת "היכנסו לחדר קיים" ויצטרפו כ"תלמידים".</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="text-indigo-500 text-xl leading-none mt-0.5">🎯</span> 
+                        <span><strong>מהלך המשחק:</strong> המפעיל יסובב את הגלגל עבור כולם. כשהאות נבחרת - מודל התשובות ייפתח ומתחילים לכתוב!</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="text-indigo-500 text-xl leading-none mt-0.5">⏱️</span> 
+                        <span><strong>איך מנצחים:</strong> הראשון שמסיים לוחץ "סיימתי!" ונועל את החדר. המפעיל יעניק לו ניקוד עד 10, וכל השאר יקבלו נקודות לפי כמות התשובות שהספיקו!</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <button onclick="hideWelcomeScreen()" class="w-full md:w-auto px-12 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black text-xl rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all">
+                הבנתי, כניסה למשחק!
+            </button>
+        </div>
+    </div>
+
     <!-- מסך התחברות (Lobby) -->
     <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/40 backdrop-blur-md">
         <div class="glass p-8 md:p-12 rounded-[2rem] w-11/12 max-w-md text-center shadow-2xl relative overflow-hidden">
@@ -349,6 +384,13 @@
             osc.start();
             osc.stop(audioCtx.currentTime + duration);
         }
+
+        // --- הסתרת מסך פתיחה ---
+        window.hideWelcomeScreen = () => {
+            const welcome = document.getElementById('welcomeScreen');
+            welcome.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => welcome.classList.add('hidden'), 500);
+        };
 
         // --- אתחול והתחברות ---
         async function init() {

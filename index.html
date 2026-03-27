@@ -1,795 +1,802 @@
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>אתגר האותיות - מהדורת כיתה</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Assistant', sans-serif;
-            background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
-            background-attachment: fixed;
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
-        }
-        #wheel {
-            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
-            filter: drop-shadow(0 10px 25px rgba(0,0,0,0.15));
-            max-width: 100%;
-            height: auto;
-            will-change: transform;
-        }
-        .spin-button {
-            background: linear-gradient(45deg, #6366f1, #a855f7, #ec4899);
-            background-size: 200% 200%;
-            animation: gradientBG 5s ease infinite;
-        }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .letter-winner {
-            text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
-            animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes bounceIn {
-            0% { transform: scale(0); opacity: 0; }
-            60% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); }
-        }
-        .pointer-active { animation: pointerShake 0.15s infinite; }
-        @keyframes pointerShake {
-            0%, 100% { transform: translateX(-50%) rotate(0deg); }
-            50% { transform: translateX(-50%) rotate(-10deg); }
-        }
-        .title-glow { text-shadow: 0 0 25px rgba(99, 102, 241, 0.15); }
-        .overflow-fix { overflow: hidden; width: 100%; position: relative; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 10px; }
-        
-        /* Loading Spinner */
-        .loader {
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top: 4px solid #6366f1;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col items-center py-4 md:py-8 px-4 overflow-fix">
-
-    <!-- רקע דקורטיבי -->
-    <div class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-20">
-        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-200 rounded-full blur-[100px]"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-pink-200 rounded-full blur-[100px]"></div>
-    </div>
-
-    <!-- מסך התחברות (Lobby) -->
-    <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/40 backdrop-blur-md">
-        <div class="glass p-8 md:p-12 rounded-[2rem] w-11/12 max-w-md text-center shadow-2xl relative overflow-hidden">
-            <div id="loginLoader" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
-                <div class="loader mb-4"></div>
-                <p class="text-indigo-600 font-bold animate-pulse">מתחבר לשרת המשחק...</p>
-            </div>
-            
-            <h1 class="text-3xl font-black text-slate-800 mb-2">ברוכים הבאים</h1>
-            <p class="text-slate-500 mb-8 font-semibold">לאתגר האותיות הכיתתי</p>
-            
-            <input type="text" id="playerNameInput" placeholder="הכניסו את שמכם..." class="w-full px-5 py-4 bg-white/80 border-2 border-indigo-100 rounded-xl text-lg font-bold text-center outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all mb-6">
-            
-            <div class="bg-indigo-50/80 border border-indigo-100 p-5 rounded-2xl mb-6 shadow-sm">
-                <h3 class="font-bold text-indigo-800 mb-3 text-sm text-right">תלמידים - היכנסו לחדר קיים:</h3>
-                <div class="flex gap-2">
-                    <input type="text" id="roomCodeInput" placeholder="קוד חדר" class="w-1/2 px-4 py-3 bg-white border border-indigo-200 rounded-xl text-center font-black text-xl text-indigo-700 outline-none focus:ring-2 focus:ring-indigo-400">
-                    <button onclick="joinGame('student')" class="w-1/2 py-3 bg-indigo-600 text-white font-black rounded-xl shadow-md hover:bg-indigo-700 transition-all">
-                        היכנסו!
-                    </button>
-                </div>
-            </div>
-
-            <div class="border-t border-slate-200 pt-5">
-                <h3 class="font-bold text-slate-500 mb-3 text-sm text-right">מורים - פתחו חדר חדש:</h3>
-                <div class="flex flex-col gap-3">
-                    <input type="number" id="targetStudentsInput" placeholder="כמה תלמידים ישתתפו במשחק?" class="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-center font-bold text-purple-700 outline-none focus:ring-2 focus:ring-purple-400">
-                    <button onclick="joinGame('teacher')" class="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black text-lg rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all">
-                        ✨ פתיחת חדר משחק
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- כותרת ראשית -->
-    <header id="mainHeader" class="text-center mb-6 md:mb-10 w-full max-w-2xl px-2 hidden">
-        <div class="flex flex-col md:flex-row justify-between items-center bg-white/60 px-4 py-3 rounded-2xl shadow-sm mb-4 border border-white/50 gap-3">
-            <div class="flex items-center gap-2">
-                <span id="userRoleBadge" class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md text-xs font-bold"></span>
-                <span id="userNameDisplay" class="font-bold text-slate-700"></span>
-            </div>
-            <div class="bg-indigo-100 text-indigo-800 px-5 py-1.5 rounded-xl font-black tracking-widest text-lg shadow-inner border border-indigo-200">
-                קוד חדר: <span id="displayRoomCode" class="text-indigo-600"></span>
-            </div>
-            <div class="font-black text-indigo-600 flex items-center gap-1">
-                <span>ניקוד:</span> <span id="userScoreDisplay" class="text-xl">0</span>
-            </div>
-        </div>
-        <h1 class="text-3xl md:text-5xl lg:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-br from-slate-900 via-indigo-700 to-indigo-900 leading-tight title-glow">
-            אתגר האותיות
-        </h1>
-    </header>
-
-    <!-- אזור המשחק המרכזי -->
-    <main id="gameMain" class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start hidden">
-        
-        <!-- עמודה: קטגוריות (צד ימין) -->
-        <div class="lg:col-span-3 space-y-4 md:space-y-6 order-2 lg:order-1">
-            <div class="glass p-5 rounded-[1.5rem] md:rounded-[2rem]">
-                <h3 class="text-lg font-bold mb-3 text-slate-800 flex items-center justify-between">
-                    <span class="flex items-center gap-2"><span>📋</span> קטגוריות</span>
-                </h3>
-                <div id="categoriesList" class="grid grid-cols-1 gap-2 mb-4 max-h-[200px] overflow-y-auto pr-1"></div>
-                
-                <div id="teacherCategoryControls" class="hidden flex gap-2">
-                    <input type="text" id="newCategoryInput" placeholder="הוסף קטגוריה..." class="flex-1 px-3 py-2 bg-white/50 border border-white/40 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-400">
-                    <button onclick="addCategory()" class="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-xl font-bold">+</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- עמודה: גלגל (מרכזית) -->
-        <div class="lg:col-span-6 flex flex-col items-center order-1 lg:order-2 px-2 relative">
-            <div id="wheelContainer" class="relative w-full max-w-[280px] md:max-w-[400px] aspect-square">
-                <div id="pointer" class="absolute -top-4 left-1/2 -translate-x-1/2 z-30 filter drop-shadow-md">
-                    <svg width="35" height="45" viewBox="0 0 50 60" fill="none">
-                        <path d="M25 60C25 60 50 25.5 50 15C50 6.71573 43.2843 0 35 0H15C6.71573 0 0 6.71573 0 15C0 25.5 25 60 25 60Z" fill="#F43F5E"/>
-                        <circle cx="25" cy="18" r="8" fill="white" fill-opacity="0.9"/>
-                    </svg>
-                </div>
-                <canvas id="wheel" width="600" height="600" class="w-full h-full rounded-full"></canvas>
-                <div class="absolute inset-0 rounded-full border-[8px] md:border-[10px] border-white/80 pointer-events-none shadow-[inset_0_0_15px_rgba(0,0,0,0.05)]"></div>
-            </div>
-
-            <div id="teacherControls" class="hidden w-full flex flex-col items-center mt-6">
-                <div class="flex flex-col sm:flex-row items-stretch justify-center gap-3 w-full max-w-lg">
-                    <div id="connectionStatus" class="flex-1 bg-blue-50 text-blue-700 font-bold px-4 py-3 rounded-2xl border border-blue-200 shadow-sm text-center transition-colors flex flex-col justify-center items-center">
-                        <span class="text-sm mb-1">תלמידים מחוברים:</span>
-                        <span class="text-2xl font-black"><span id="connectedStudentsCount">0</span> / <span id="targetStudentsCount">0</span></span>
-                    </div>
-                    <div class="flex-1 flex flex-col justify-center gap-2">
-                        <button id="spinBtn" onclick="teacherSpinWheel()" class="spin-button text-white text-xl font-black py-4 px-4 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 w-full h-full">
-                            סובב את הגלגל!
-                        </button>
-                    </div>
-                </div>
-                <button onclick="forceEnableSpin()" id="forceSpinBtn" class="mt-3 text-blue-500 font-bold hover:text-blue-700 transition text-xs hidden">
-                    התחל למרות שחסרים תלמידים
-                </button>
-                <button onclick="teacherResetGame()" class="mt-4 py-2 text-indigo-500 font-bold bg-white/50 border border-indigo-100 rounded-xl hover:bg-white transition text-xs px-6">
-                    🔄 איפוס משחק (מחיקת היסטוריה)
-                </button>
-            </div>
-            
-            <div id="studentWaitingText" class="mt-8 text-center hidden">
-                <p class="text-xl font-bold text-slate-500 animate-pulse">ממתינים למורה שיסובב את הגלגל...</p>
-            </div>
-
-            <div id="result" class="mt-4 text-6xl md:text-8xl font-black h-20 md:h-24 flex items-center justify-center"></div>
-        </div>
-
-        <!-- עמודה: טבלת מובילים (צד שמאל) -->
-        <div class="lg:col-span-3 space-y-4 md:space-y-6 order-3">
-            <div class="glass p-5 rounded-[1.5rem] md:rounded-[2rem]">
-                <h3 class="text-lg font-bold mb-3 text-slate-800">🏆 טבלת מובילים</h3>
-                <div id="leaderboard" class="space-y-2 max-h-[250px] overflow-y-auto pr-1">
-                    <!-- ימולא אוטומטית -->
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- מודל תשובות (לתלמיד) -->
-    <div id="answerModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-white/95 backdrop-blur-md p-6 md:p-8 rounded-[2rem] w-11/12 max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform duration-300">
-            <div class="text-center mb-6">
-                <div class="text-indigo-500 font-bold text-sm mb-1 animate-pulse">מהרו! הראשון שמסיים עוצר את השעון!</div>
-                <div id="modalBigLetter" class="text-7xl md:text-9xl font-black text-indigo-600 drop-shadow-lg mb-2">א</div>
-                <div class="h-1 w-20 bg-gradient-to-r from-indigo-500 to-pink-500 mx-auto rounded-full"></div>
-            </div>
-            <div id="answerInputs" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-8">
-                <!-- השדות ייווצרו כאן דינמית -->
-            </div>
-            <div class="flex justify-center">
-                <button onclick="studentSubmitAnswers()" class="px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black rounded-2xl shadow-xl hover:scale-105 active:scale-95 text-lg w-full sm:w-auto">
-                    סיימתי!
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- מודל המתנה לתלמידים -->
-    <div id="waitingModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md hidden">
-        <div class="bg-white p-8 rounded-[2rem] text-center max-w-sm w-11/12 shadow-2xl">
-            <div class="text-5xl mb-4">⏱️</div>
-            <h2 id="waitingModalTitle" class="text-2xl font-black text-slate-800 mb-2">הסיבוב הסתיים!</h2>
-            <p id="waitingModalDesc" class="text-slate-600 font-semibold mb-6">המורה בודק את התשובות עכשיו...</p>
-            <div class="loader mx-auto border-indigo-500 border-t-indigo-200"></div>
-        </div>
-    </div>
-
-    <!-- מודל בדיקה למורה -->
-    <div id="evaluationModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md hidden">
-        <div class="bg-white p-6 md:p-8 rounded-[2rem] w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <h2 class="text-2xl font-black text-slate-800 mb-1 border-b pb-4">
-                בדיקת תשובות: <span id="evalStudentName" class="text-indigo-600"></span>
-            </h2>
-            <div class="bg-indigo-50 text-indigo-800 px-4 py-2 rounded-lg font-bold text-sm mb-6 inline-block mt-4">
-                אות הסיבוב: <span id="evalLetter" class="text-xl"></span>
-            </div>
-            
-            <div id="evalAnswersList" class="space-y-3 mb-8">
-                <!-- תשובות התלמיד יופיעו כאן -->
-            </div>
-            
-            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center">
-                <label class="block font-bold text-slate-700 mb-4 text-lg">כמה נקודות מגיע לו?</label>
-                <div class="flex items-center justify-center gap-4 mb-6">
-                    <input type="range" id="evalScoreSlider" min="0" max="10" value="10" class="w-full max-w-xs accent-indigo-600" oninput="document.getElementById('evalScoreValue').innerText = this.value">
-                    <span id="evalScoreValue" class="text-3xl font-black text-indigo-600 w-12">10</span>
-                </div>
-                <button onclick="teacherSubmitEvaluation()" class="w-full py-4 bg-green-500 text-white font-black text-xl rounded-xl shadow-lg hover:bg-green-600 transition active:scale-95">
-                    אשר והענק נקודות!
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- סקריפטים של Firebase והמשחק -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // אתחול Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBVc3GaUaLFOyGNUba7JVHU7xMdHXYPzKk",
-            authDomain: "countrycity-c7293.firebaseapp.com",
-            projectId: "countrycity-c7293",
-            storageBucket: "countrycity-c7293.firebasestorage.app",
-            messagingSenderId: "480935929836",
-            appId: "1:480935929836:web:1e02b33694e97b4b27c2c9",
-            measurementId: "G-PJNT2TP6PD"
-        };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'letter-challenge-v1';
-
-        // משתני משחק וגלובלים
-        let currentUser = null; // { uid, name, role, score }
-        let currentGameState = null;
-        let unsubscribeState = null;
-        let unsubscribePlayers = null;
-        let hasAutoGradedThisRound = false;
-        let currentStudentsCount = 0; // מעקב אחר כמות התלמידים המחוברים
-
-        const originalAlphabet = "אבגדהוזחטיכלמנסעפצקרשת".split("");
-        const wheelColors = ['#6366f1', '#8b5cf6', '#d946ef', '#ec4899', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6'];
-        
-        const canvas = document.getElementById("wheel");
-        const ctx = canvas.getContext("2d");
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        // הפניות (References) של Firestore
-        let roomId = null;
-        let stateRef = null;
-        let playersRef = null;
-        let getMyPlayerRef = null;
-
-        // פונקציית צלילים
-        function playTick(freq = 250, duration = 0.05) {
-            if (audioCtx.state === 'suspended') return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
-        }
-
-        // --- אתחול והתחברות ---
-        async function init() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Auth error:", error);
-                alert("שגיאה בהתחברות לשרת. נסו לרענן את העמוד.");
-            }
-        }
-
-        onAuthStateChanged(auth, user => {
-            document.getElementById('loginLoader').classList.add('hidden');
-            if (user) {
-                window.firebaseUser = user; // נשמור ב-window לגישה קלה
-            }
-        });
-
-        window.joinGame = async (role) => {
-            const nameInput = document.getElementById('playerNameInput').value.trim();
-            if (!nameInput) return alert("אנא הכניסו שם!");
-            if (!window.firebaseUser) return alert("טרם התחברנו לשרת, אנא המתינו שניה.");
-
-            let targetStudents = 0;
-            if (role === 'student') {
-                roomId = document.getElementById('roomCodeInput').value.trim();
-                if (!roomId) return alert("אנא הכניסו קוד חדר שמסר המורה!");
-            } else {
-                // מורה - קליטת מספר תלמידים ויצירת קוד חדר
-                targetStudents = parseInt(document.getElementById('targetStudentsInput').value);
-                if (!targetStudents || targetStudents <= 0) return alert("אנא הגדירו כמה תלמידים ישתתפו במשחק!");
-                roomId = Math.floor(1000 + Math.random() * 9000).toString();
-            }
-
-            // עדכון הפניות Firestore לפי קוד החדר הספציפי
-            stateRef = doc(db, 'artifacts', appId, 'public', 'data', 'gameStates', roomId);
-            playersRef = collection(db, 'artifacts', appId, 'public', 'data', `room_${roomId}_players`);
-            getMyPlayerRef = () => doc(db, 'artifacts', appId, 'public', 'data', `room_${roomId}_players`, currentUser.uid);
-
-            if (role === 'student') {
-                const snap = await getDoc(stateRef);
-                if (!snap.exists()) {
-                    return alert("החדר לא קיים! אנא בדקו שוב את הקוד שהזנתם.");
-                }
-            }
-
-            currentUser = {
-                uid: window.firebaseUser.uid,
-                name: nameInput,
-                role: role,
-                score: 0
-            };
-
-            // יצירת/עדכון שחקן במסד הנתונים
-            await setDoc(getMyPlayerRef(), currentUser);
-
-            // אם זה מורה, מאתחלים חדר חדש ונקי
-            if (role === 'teacher') {
-                await setDoc(stateRef, {
-                    status: 'waiting',
-                    alphabet: [...originalAlphabet],
-                    categories: [
-                        { id: 1, name: 'ארץ', icon: '🌍' }, { id: 2, name: 'עיר', icon: '🏙️' },
-                        { id: 3, name: 'חיה', icon: '🦁' }, { id: 4, name: 'צומח', icon: '🌱' },
-                        { id: 5, name: 'דומם', icon: '📦' }, { id: 6, name: 'שם', icon: '👤' }
-                    ],
-                    spinTarget: 0,
-                    currentLetter: '',
-                    winnerData: null,
-                    targetStudents: targetStudents // שמירת כמות התלמידים הרצויה
-                });
-            }
-
-            setupUI();
-            // הערה: הסרנו את קריאת ה-startListeners השגויה (היא שגרמה לגלגל להיתקע)
-        };
-
-        function setupUI() {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainHeader').classList.remove('hidden');
-            document.getElementById('gameMain').classList.remove('hidden');
-            
-            document.getElementById('userNameDisplay').innerText = currentUser.name;
-            document.getElementById('displayRoomCode').innerText = roomId;
-
-            // חשיפת כפתורי המורה או מסך ההמתנה לתלמיד (החלק שהיה חסר)
-            if (currentUser.role === 'teacher') {
-                document.getElementById('teacherControls').classList.remove('hidden');
-                document.getElementById('teacherCategoryControls').classList.remove('hidden');
-                document.getElementById('studentWaitingText').classList.add('hidden');
-            } else {
-                document.getElementById('teacherControls').classList.add('hidden');
-                document.getElementById('teacherCategoryControls').classList.add('hidden');
-                document.getElementById('studentWaitingText').classList.remove('hidden');
-            }
-
-            unsubscribeState = onSnapshot(stateRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    handleStateUpdate(data);
-                }
-            }, (err) => console.error("State sync error:", err));
-
-            // האזנה לטבלת שחקנים
-            unsubscribePlayers = onSnapshot(playersRef, (snapshot) => {
-                let players = [];
-                snapshot.forEach(doc => {
-                    const p = doc.data();
-                    players.push(p);
-                    if (p.uid === currentUser.uid) {
-                        currentUser.score = p.score;
-                        document.getElementById('userScoreDisplay').innerText = p.score;
-                    }
-                });
-                // עדכון טבלת מובילים (סינון המורה מהרשימה)
-                const studentsOnly = players.filter(p => p.role === 'student');
-                studentsOnly.sort((a, b) => b.score - a.score);
-                const lbContainer = document.getElementById('leaderboard');
-                lbContainer.innerHTML = studentsOnly.map(p => `
-                    <div class="flex justify-between items-center p-2 rounded-xl border ${p.uid === currentUser.uid ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-100'} shadow-sm text-sm">
-                        <div class="flex items-center gap-2">
-                            <span>👨‍🎓</span>
-                            <span class="font-bold text-slate-700">${p.name}</span>
-                        </div>
-                        <div class="font-black text-indigo-600">${p.score} <span class="text-[10px] text-slate-400 font-normal">נק'</span></div>
-                    </div>
-                `).join('');
-                
-                // עדכון מספר התלמידים למורה
-                currentStudentsCount = studentsOnly.length;
-                updateTeacherSpinButton();
-            });
-        }
-
-        function updateTeacherSpinButton() {
-            if (!currentGameState || !currentUser || currentUser.role !== 'teacher') return;
-            
-            const spinBtn = document.getElementById('spinBtn');
-            const target = currentGameState.targetStudents || 0;
-            
-            document.getElementById('connectedStudentsCount').innerText = currentStudentsCount;
-            document.getElementById('targetStudentsCount').innerText = target;
-
-            if (currentGameState.status === 'waiting') {
-                if (currentStudentsCount < target) {
-                    spinBtn.disabled = true;
-                    spinBtn.innerText = "ממתין לתלמידים...";
-                    document.getElementById('connectionStatus').classList.replace('bg-green-50', 'bg-blue-50');
-                    document.getElementById('connectionStatus').classList.replace('text-green-700', 'text-blue-700');
-                    document.getElementById('forceSpinBtn').classList.remove('hidden');
-                } else {
-                    spinBtn.disabled = false;
-                    spinBtn.innerText = "סובב את הגלגל!";
-                    document.getElementById('connectionStatus').classList.replace('bg-blue-50', 'bg-green-50');
-                    document.getElementById('connectionStatus').classList.replace('text-blue-700', 'text-green-700');
-                    document.getElementById('forceSpinBtn').classList.add('hidden');
-                }
-            }
-        }
-
-        // --- טיפול במצבי המשחק המרכזיים ---
-        let tickInterval = null;
-
-        function handleStateUpdate(data) {
-            currentGameState = data;
-            
-            // עדכון רשימות ויזואליות
-            renderCategories(data.categories || []);
-            drawWheel(data.alphabet || []);
-
-            // ניהול מצבים
-            switch (data.status) {
-                case 'waiting':
-                    resetModals();
-                    document.getElementById('result').innerHTML = "";
-                    hasAutoGradedThisRound = false;
-                    canvas.style.transform = `rotate(${data.spinTarget}deg)`;
-                    updateTeacherSpinButton();
-                    break;
-                
-                case 'spinning':
-                    resetModals();
-                    if (currentUser && currentUser.role === 'teacher') {
-                        document.getElementById('spinBtn').disabled = true;
-                        document.getElementById('spinBtn').innerText = "מגריל...";
-                        document.getElementById('forceSpinBtn').classList.add('hidden');
-                    }
-                    document.getElementById('result').innerHTML = "";
-                    
-                    if (audioCtx.state === 'suspended') audioCtx.resume();
-                    document.getElementById('pointer').classList.add("pointer-active");
-                    
-                    // סיבוב ויזואלי לכולם
-                    canvas.style.transform = `rotate(${data.spinTarget}deg)`;
-                    
-                    // צליל סיבוב מקומי
-                    if (tickInterval) clearInterval(tickInterval);
-                    tickInterval = setInterval(() => playTick(280), 160);
-                    setTimeout(() => {
-                        clearInterval(tickInterval);
-                        document.getElementById('pointer').classList.remove("pointer-active");
-                    }, 4800);
-                    break;
-
-                case 'answering':
-                    resetModals();
-                    document.getElementById('result').innerHTML = `<span class="letter-winner text-indigo-600">${data.currentLetter}</span>`;
-                    hasAutoGradedThisRound = false;
-                    
-                    // אם אני תלמיד, פתח את מודל התשובות
-                    if (currentUser.role === 'student') {
-                        openAnswerModal(data.currentLetter, data.categories);
-                    }
-                    break;
-
-                case 'evaluating':
-                    if (currentUser.role === 'teacher') {
-                        // המורה בודק את המנצח
-                        openEvaluationModal(data.winnerData);
-                    } else if (currentUser.role === 'student') {
-                        closeAnswerModal();
-                        
-                        if (data.winnerData.uid === currentUser.uid) {
-                            // אני המנצח שסיים ראשון
-                            showWaitingModal("כל הכבוד!", "אתה הראשון שסיים. המורה בודק את הטופס שלך כעת.");
-                        } else {
-                            // אני לא המנצח. מגיע לי נקודות על מה שהספקתי!
-                            showWaitingModal("הסיבוב ננעל!", `<b>${data.winnerData.name}</b> סיים ראשון. המורה בודק את תשובותיו.`);
-                            autoGradeMyIncompleteForm();
-                        }
-                    }
-                    break;
-            }
-        }
-
-        // --- לוגיקה ציור וממשק ---
-        function renderCategories(cats) {
-            const container = document.getElementById("categoriesList");
-            const isTeacher = currentUser && currentUser.role === 'teacher';
-            container.innerHTML = cats.map((cat, index) => `
-                <div class="category-item flex items-center justify-between p-2 bg-white/50 rounded-xl border border-white/40 text-xs group">
-                    <div class="flex items-center gap-2">
-                        <span class="w-6 h-6 flex items-center justify-center bg-indigo-100 rounded-lg text-[10px]">${cat.icon || '🏷️'}</span>
-                        <span class="font-semibold text-slate-700">${cat.name}</span>
-                    </div>
-                    ${isTeacher ? `<button onclick="removeCategory(${index})" class="opacity-0 lg:group-hover:opacity-100 text-red-400 hover:text-red-600 font-bold px-2">✕</button>` : ''}
-                </div>
-            `).join("");
-        }
-
-        function drawWheel(alphabet) {
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            const radius = centerX - 15;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (alphabet.length === 0) {
-                ctx.fillStyle = "#cbd5e1";
-                ctx.beginPath(); ctx.arc(centerX, centerY, radius, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = "white"; ctx.textAlign = "center"; ctx.font = "bold 24px Assistant";
-                ctx.fillText("נגמרו האותיות", centerX, centerY);
-                return;
-            }
-
-            const step = (Math.PI * 2) / alphabet.length;
-            alphabet.forEach((letter, i) => {
-                const angle = i * step;
-                ctx.beginPath();
-                ctx.fillStyle = wheelColors[i % wheelColors.length];
-                ctx.moveTo(centerX, centerY);
-                ctx.arc(centerX, centerY, radius, angle, angle + step);
-                ctx.fill();
-                
-                ctx.save();
-                ctx.translate(centerX, centerY);
-                ctx.rotate(angle + step / 2);
-                ctx.textAlign = "right";
-                ctx.fillStyle = "white";
-                const fontSize = alphabet.length > 15 ? 32 : (alphabet.length > 5 ? 40 : 55);
-                ctx.font = `bold ${fontSize}px Assistant`;
-                ctx.fillText(letter, radius - 35, 12);
-                ctx.restore();
-            });
-
-            // עיגול פנימי
-            const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 45);
-            grad.addColorStop(0, '#ffffff'); grad.addColorStop(1, '#f1f5f9');
-            ctx.beginPath(); ctx.arc(centerX, centerY, 45, 0, Math.PI * 2);
-            ctx.fillStyle = grad; ctx.fill();
-        }
-
-        // --- פעולות מורה ---
-        window.forceEnableSpin = () => {
-            document.getElementById('spinBtn').disabled = false;
-            document.getElementById('spinBtn').innerText = "סובב את הגלגל!";
-            document.getElementById('forceSpinBtn').classList.add('hidden');
-        };
-
-        window.teacherSpinWheel = async () => {
-            if (!currentGameState || currentGameState.alphabet.length === 0 || currentGameState.status === 'spinning') return;
-            
-            const extraSpin = Math.floor(Math.random() * 360) + 2160; 
-            const newRotation = (currentGameState.spinTarget || 0) + extraSpin;
-
-            // עדכון הסטטוס לסחרור - כל המסכים מתחילים להסתובב
-            await updateDoc(stateRef, {
-                status: 'spinning',
-                spinTarget: newRotation
-            });
-
-            // המורה מחשב בשקט את האות שתיבחר ומתזמן את סיום הסיבוב
-            setTimeout(async () => {
-                const actualRot = newRotation % 360;
-                const segmentSize = 360 / currentGameState.alphabet.length;
-                const index = Math.floor((360 - (actualRot % 360) + 270) % 360 / segmentSize);
-                const letter = currentGameState.alphabet[index % currentGameState.alphabet.length];
-                
-                const newAlphabet = [...currentGameState.alphabet];
-                newAlphabet.splice(index % currentGameState.alphabet.length, 1);
-
-                // מעבר לשלב התשובות
-                await updateDoc(stateRef, {
-                    status: 'answering',
-                    currentLetter: letter,
-                    alphabet: newAlphabet
-                });
-            }, 5000);
-        };
-
-        window.teacherResetGame = async () => {
-            if(confirm("האם לאפס את כל המשחק?")) {
-                await updateDoc(stateRef, {
-                    status: 'waiting',
-                    alphabet: [...originalAlphabet],
-                    currentLetter: '',
-                    spinTarget: 0,
-                    winnerData: null
-                });
-            }
-        };
-
-        window.addCategory = async () => {
-            const input = document.getElementById("newCategoryInput");
-            const name = input.value.trim();
-            if (name && currentGameState) {
-                const updatedCats = [...currentGameState.categories, { id: Date.now(), name: name, icon: '🏷️' }];
-                await updateDoc(stateRef, { categories: updatedCats });
-                input.value = "";
-            }
-        };
-
-        window.removeCategory = async (index) => {
-            if (currentGameState) {
-                const updatedCats = [...currentGameState.categories];
-                updatedCats.splice(index, 1);
-                await updateDoc(stateRef, { categories: updatedCats });
-            }
-        };
-
-        window.teacherSubmitEvaluation = async () => {
-            const score = parseInt(document.getElementById('evalScoreSlider').value);
-            const winnerUid = currentGameState.winnerData.uid;
-            
-            // הוספת ניקוד למנצח לתוך החדר הספציפי
-            const winnerRef = doc(db, 'artifacts', appId, 'public', 'data', `room_${roomId}_players`, winnerUid);
-            await updateDoc(winnerRef, { score: increment(score) });
-
-            // סגירת הסיבוב וחזרה להמתנה
-            await updateDoc(stateRef, {
-                status: 'waiting',
-                winnerData: null
-            });
-            document.getElementById('evaluationModal').classList.add('hidden');
-        };
-
-        // --- פעולות תלמיד ---
-        function openAnswerModal(letter, categories) {
-            const modal = document.getElementById('answerModal');
-            document.getElementById('modalBigLetter').innerText = letter;
-
-            const inputsContainer = document.getElementById('answerInputs');
-            inputsContainer.innerHTML = categories.map(cat => `
-                <div class="flex flex-col gap-2 bg-slate-50/50 p-3 rounded-xl border border-slate-100 input-group" data-cat="${cat.name}">
-                    <label class="font-bold text-slate-700 flex items-center gap-2 text-sm md:text-base">
-                        <span class="bg-white p-1 rounded-md shadow-sm">${cat.icon || '🏷️'}</span> ${cat.name}
-                    </label>
-                    <input type="text" placeholder="הקלידו כאן..." class="answer-input w-full px-4 py-3 rounded-lg border-2 border-indigo-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all text-base md:text-lg font-semibold text-slate-800 shadow-sm" dir="rtl">
-                </div>
-            `).join('');
-
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                const firstInput = inputsContainer.querySelector('input');
-                if (firstInput) firstInput.focus();
-            }, 300);
-        }
-
-        window.studentSubmitAnswers = async () => {
-            // קריאת כל התשובות
-            const inputs = document.querySelectorAll('.input-group');
-            let answers = [];
-            inputs.forEach(group => {
-                const catName = group.getAttribute('data-cat');
-                const val = group.querySelector('input').value.trim();
-                answers.push({ category: catName, value: val || '-' });
-            });
-
-            // וידוא שהמשחק עדיין בשלב תשובות כדי למנוע כפילויות לחיצה
-            const snap = await getDoc(stateRef);
-            if (snap.exists() && snap.data().status === 'answering') {
-                // אני סיימתי ראשון! נועל את הסיבוב!
-                await updateDoc(stateRef, {
-                    status: 'evaluating',
-                    winnerData: {
-                        uid: currentUser.uid,
-                        name: currentUser.name,
-                        answers: answers
-                    }
-                });
-            }
-        };
-
-        function closeAnswerModal() {
-            document.getElementById('answerModal').classList.add('opacity-0', 'pointer-events-none');
-        }
-
-        async function autoGradeMyIncompleteForm() {
-            if (hasAutoGradedThisRound) return;
-            hasAutoGradedThisRound = true;
-
-            // ספירת השדות הלא ריקים
-            const inputs = document.querySelectorAll('.answer-input');
-            let pointsEarned = 0;
-            inputs.forEach(input => {
-                if (input.value.trim() !== '') pointsEarned++;
-            });
-
-            if (pointsEarned > 0) {
-                await updateDoc(getMyPlayerRef(), { score: increment(pointsEarned) });
-            }
-        }
-
-        // --- מודלים של עזר ---
-        function showWaitingModal(title, desc) {
-            document.getElementById('waitingModalTitle').innerText = title;
-            document.getElementById('waitingModalDesc').innerHTML = desc;
-            document.getElementById('waitingModal').classList.remove('hidden');
-        }
-
-        function openEvaluationModal(winnerData) {
-            document.getElementById('evalStudentName').innerText = winnerData.name;
-            document.getElementById('evalLetter').innerText = currentGameState.currentLetter;
-            document.getElementById('evalScoreSlider').value = 10;
-            document.getElementById('evalScoreValue').innerText = "10";
-            
-            const list = document.getElementById('evalAnswersList');
-            list.innerHTML = winnerData.answers.map(ans => `
-                <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                    <span class="font-bold text-slate-500 w-1/3">${ans.category}</span>
-                    <span class="font-black text-indigo-700 w-2/3 text-left ${ans.value === '-' ? 'text-slate-300' : ''}">${ans.value}</span>
-                </div>
-            `).join('');
-
-            document.getElementById('evaluationModal').classList.remove('hidden');
-        }
-
-        function resetModals() {
-            document.getElementById('waitingModal').classList.add('hidden');
-            document.getElementById('evaluationModal').classList.add('hidden');
-            closeAnswerModal();
-        }
-
-        // הפעלת האתחול בטעינה
-        document.addEventListener('DOMContentLoaded', init);
-    </script>
-</body>
-</html>
+{\rtf1\ansi\ansicpg1252\cocoartf2868
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww30040\viewh18260\viewkind0
+\pard\tqr\tx720\tqr\tx1440\tqr\tx2160\tqr\tx2880\tqr\tx3600\tqr\tx4320\tqr\tx5040\tqr\tx5760\tqr\tx6480\tqr\tx7200\tqr\tx7920\tqr\tx8640\pardirnatural\qr\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="he" dir="rtl">\
+<head>\
+    <meta charset="UTF-8">\
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">\
+    <title>\uc0\u1488 \u1514 \u1490 \u1512  \u1492 \u1488 \u1493 \u1514 \u1497 \u1493 \u1514  - \u1502 \u1492 \u1491 \u1493 \u1512 \u1514  \u1499 \u1497 \u1514 \u1492 </title>\
+    <script src="https://cdn.tailwindcss.com"></script>\
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap" rel="stylesheet">\
+    <style>\
+        body \{\
+            font-family: 'Assistant', sans-serif;\
+            background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);\
+            background-attachment: fixed;\
+            overflow-x: hidden;\
+            -webkit-tap-highlight-color: transparent;\
+        \}\
+        .glass \{\
+            background: rgba(255, 255, 255, 0.75);\
+            backdrop-filter: blur(12px);\
+            -webkit-backdrop-filter: blur(12px);\
+            border: 1px solid rgba(255, 255, 255, 0.4);\
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);\
+        \}\
+        #wheel \{\
+            transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);\
+            filter: drop-shadow(0 10px 25px rgba(0,0,0,0.15));\
+            max-width: 100%;\
+            height: auto;\
+            will-change: transform;\
+        \}\
+        .spin-button \{\
+            background: linear-gradient(45deg, #6366f1, #a855f7, #ec4899);\
+            background-size: 200% 200%;\
+            animation: gradientBG 5s ease infinite;\
+        \}\
+        @keyframes gradientBG \{\
+            0% \{ background-position: 0% 50%; \}\
+            50% \{ background-position: 100% 50%; \}\
+            100% \{ background-position: 0% 50%; \}\
+        \}\
+        .letter-winner \{\
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.3);\
+            animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);\
+        \}\
+        @keyframes bounceIn \{\
+            0% \{ transform: scale(0); opacity: 0; \}\
+            60% \{ transform: scale(1.2); opacity: 1; \}\
+            100% \{ transform: scale(1); \}\
+        \}\
+        .pointer-active \{ animation: pointerShake 0.15s infinite; \}\
+        @keyframes pointerShake \{\
+            0%, 100% \{ transform: translateX(-50%) rotate(0deg); \}\
+            50% \{ transform: translateX(-50%) rotate(-10deg); \}\
+        \}\
+        .title-glow \{ text-shadow: 0 0 25px rgba(99, 102, 241, 0.15); \}\
+        .overflow-fix \{ overflow: hidden; width: 100%; position: relative; \}\
+        ::-webkit-scrollbar \{ width: 6px; \}\
+        ::-webkit-scrollbar-thumb \{ background: rgba(99, 102, 241, 0.3); border-radius: 10px; \}\
+        \
+        /* Loading Spinner */\
+        .loader \{\
+            border: 4px solid rgba(255,255,255,0.3);\
+            border-top: 4px solid #6366f1;\
+            border-radius: 50%;\
+            width: 40px;\
+            height: 40px;\
+            animation: spin 1s linear infinite;\
+        \}\
+        @keyframes spin \{ 0% \{ transform: rotate(0deg); \} 100% \{ transform: rotate(360deg); \} \}\
+    </style>\
+</head>\
+<body class="min-h-screen flex flex-col items-center py-4 md:py-8 px-4 overflow-fix">\
+\
+    <!-- \uc0\u1512 \u1511 \u1506  \u1491 \u1511 \u1493 \u1512 \u1496 \u1497 \u1489 \u1497  -->\
+    <div class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-20">\
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-200 rounded-full blur-[100px]"></div>\
+        <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-pink-200 rounded-full blur-[100px]"></div>\
+    </div>\
+\
+    <!-- \uc0\u1502 \u1505 \u1498  \u1492 \u1514 \u1495 \u1489 \u1512 \u1493 \u1514  (Lobby) -->\
+    <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/40 backdrop-blur-md">\
+        <div class="glass p-8 md:p-12 rounded-[2rem] w-11/12 max-w-md text-center shadow-2xl relative overflow-hidden">\
+            <div id="loginLoader" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center">\
+                <div class="loader mb-4"></div>\
+                <p class="text-indigo-600 font-bold animate-pulse">\uc0\u1502 \u1514 \u1495 \u1489 \u1512  \u1500 \u1513 \u1512 \u1514  \u1492 \u1502 \u1513 \u1495 \u1511 ...</p>\
+            </div>\
+            \
+            <h1 class="text-3xl font-black text-slate-800 mb-2">\uc0\u1489 \u1512 \u1493 \u1499 \u1497 \u1501  \u1492 \u1489 \u1488 \u1497 \u1501 </h1>\
+            <p class="text-slate-500 mb-8 font-semibold">\uc0\u1500 \u1488 \u1514 \u1490 \u1512  \u1492 \u1488 \u1493 \u1514 \u1497 \u1493 \u1514  \u1492 \u1499 \u1497 \u1514 \u1514 \u1497 </p>\
+            \
+            <input type="text" id="playerNameInput" placeholder="\uc0\u1492 \u1499 \u1504 \u1497 \u1505 \u1493  \u1488 \u1514  \u1513 \u1502 \u1499 \u1501 ..." class="w-full px-5 py-4 bg-white/80 border-2 border-indigo-100 rounded-xl text-lg font-bold text-center outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 transition-all mb-6">\
+            \
+            <div class="bg-indigo-50/80 border border-indigo-100 p-5 rounded-2xl mb-6 shadow-sm">\
+                <h3 class="font-bold text-indigo-800 mb-3 text-sm text-right">\uc0\u1514 \u1500 \u1502 \u1497 \u1491 \u1497 \u1501  - \u1492 \u1497 \u1499 \u1504 \u1505 \u1493  \u1500 \u1495 \u1491 \u1512  \u1511 \u1497 \u1497 \u1501 :</h3>\
+                <div class="flex gap-2">\
+                    <input type="text" id="roomCodeInput" placeholder="\uc0\u1511 \u1493 \u1491  \u1495 \u1491 \u1512 " class="w-1/2 px-4 py-3 bg-white border border-indigo-200 rounded-xl text-center font-black text-xl text-indigo-700 outline-none focus:ring-2 focus:ring-indigo-400">\
+                    <button onclick="joinGame('student')" class="w-1/2 py-3 bg-indigo-600 text-white font-black rounded-xl shadow-md hover:bg-indigo-700 transition-all">\
+                        \uc0\u1492 \u1497 \u1499 \u1504 \u1505 \u1493 !\
+                    </button>\
+                </div>\
+            </div>\
+\
+            <div class="border-t border-slate-200 pt-5">\
+                <h3 class="font-bold text-slate-500 mb-3 text-sm text-right">\uc0\u1502 \u1493 \u1512 \u1497 \u1501  - \u1508 \u1514 \u1495 \u1493  \u1495 \u1491 \u1512  \u1495 \u1491 \u1513 :</h3>\
+                <div class="flex flex-col gap-3">\
+                    <input type="number" id="targetStudentsInput" placeholder="\uc0\u1499 \u1502 \u1492  \u1514 \u1500 \u1502 \u1497 \u1491 \u1497 \u1501  \u1497 \u1513 \u1514 \u1514 \u1508 \u1493  \u1489 \u1502 \u1513 \u1495 \u1511 ?" class="w-full px-4 py-3 bg-white border border-purple-200 rounded-xl text-center font-bold text-purple-700 outline-none focus:ring-2 focus:ring-purple-400">\
+                    <button onclick="joinGame('teacher')" class="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black text-lg rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all">\
+                        \uc0\u10024  \u1508 \u1514 \u1497 \u1495 \u1514  \u1495 \u1491 \u1512  \u1502 \u1513 \u1495 \u1511 \
+                    </button>\
+                </div>\
+            </div>\
+        </div>\
+    </div>\
+\
+    <!-- \uc0\u1499 \u1493 \u1514 \u1512 \u1514  \u1512 \u1488 \u1513 \u1497 \u1514  -->\
+    <header id="mainHeader" class="text-center mb-6 md:mb-10 w-full max-w-2xl px-2 hidden">\
+        <div class="flex flex-col md:flex-row justify-between items-center bg-white/60 px-4 py-3 rounded-2xl shadow-sm mb-4 border border-white/50 gap-3">\
+            <div class="flex items-center gap-2">\
+                <span id="userRoleBadge" class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md text-xs font-bold"></span>\
+                <span id="userNameDisplay" class="font-bold text-slate-700"></span>\
+            </div>\
+            <div class="bg-indigo-100 text-indigo-800 px-5 py-1.5 rounded-xl font-black tracking-widest text-lg shadow-inner border border-indigo-200">\
+                \uc0\u1511 \u1493 \u1491  \u1495 \u1491 \u1512 : <span id="displayRoomCode" class="text-indigo-600"></span>\
+            </div>\
+            <div class="font-black text-indigo-600 flex items-center gap-1">\
+                <span>\uc0\u1504 \u1497 \u1511 \u1493 \u1491 :</span> <span id="userScoreDisplay" class="text-xl">0</span>\
+            </div>\
+        </div>\
+        <h1 class="text-3xl md:text-5xl lg:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-br from-slate-900 via-indigo-700 to-indigo-900 leading-tight title-glow">\
+            \uc0\u1488 \u1514 \u1490 \u1512  \u1492 \u1488 \u1493 \u1514 \u1497 \u1493 \u1514 \
+        </h1>\
+    </header>\
+\
+    <!-- \uc0\u1488 \u1494 \u1493 \u1512  \u1492 \u1502 \u1513 \u1495 \u1511  \u1492 \u1502 \u1512 \u1499 \u1494 \u1497  -->\
+    <main id="gameMain" class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start hidden">\
+        \
+        <!-- \uc0\u1506 \u1502 \u1493 \u1491 \u1492 : \u1511 \u1496 \u1490 \u1493 \u1512 \u1497 \u1493 \u1514  (\u1510 \u1491  \u1497 \u1502 \u1497 \u1503 ) -->\
+        <div class="lg:col-span-3 space-y-4 md:space-y-6 order-2 lg:order-1">\
+            <div class="glass p-5 rounded-[1.5rem] md:rounded-[2rem]">\
+                <h3 class="text-lg font-bold mb-3 text-slate-800 flex items-center justify-between">\
+                    <span class="flex items-center gap-2"><span>\uc0\u55357 \u56523 </span> \u1511 \u1496 \u1490 \u1493 \u1512 \u1497 \u1493 \u1514 </span>\
+                </h3>\
+                <div id="categoriesList" class="grid grid-cols-1 gap-2 mb-4 max-h-[200px] overflow-y-auto pr-1"></div>\
+                \
+                <div id="teacherCategoryControls" class="hidden flex gap-2">\
+                    <input type="text" id="newCategoryInput" placeholder="\uc0\u1492 \u1493 \u1505 \u1507  \u1511 \u1496 \u1490 \u1493 \u1512 \u1497 \u1492 ..." class="flex-1 px-3 py-2 bg-white/50 border border-white/40 rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-400">\
+                    <button onclick="addCategory()" class="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-xl font-bold">+</button>\
+                </div>\
+            </div>\
+        </div>\
+\
+        <!-- \uc0\u1506 \u1502 \u1493 \u1491 \u1492 : \u1490 \u1500 \u1490 \u1500  (\u1502 \u1512 \u1499 \u1494 \u1497 \u1514 ) -->\
+        <div class="lg:col-span-6 flex flex-col items-center order-1 lg:order-2 px-2 relative">\
+            <div id="wheelContainer" class="relative w-full max-w-[280px] md:max-w-[400px] aspect-square">\
+                <div id="pointer" class="absolute -top-4 left-1/2 -translate-x-1/2 z-30 filter drop-shadow-md">\
+                    <svg width="35" height="45" viewBox="0 0 50 60" fill="none">\
+                        <path d="M25 60C25 60 50 25.5 50 15C50 6.71573 43.2843 0 35 0H15C6.71573 0 0 6.71573 0 15C0 25.5 25 60 25 60Z" fill="#F43F5E"/>\
+                        <circle cx="25" cy="18" r="8" fill="white" fill-opacity="0.9"/>\
+                    </svg>\
+                </div>\
+                <canvas id="wheel" width="600" height="600" class="w-full h-full rounded-full"></canvas>\
+                <div class="absolute inset-0 rounded-full border-[8px] md:border-[10px] border-white/80 pointer-events-none shadow-[inset_0_0_15px_rgba(0,0,0,0.05)]"></div>\
+            </div>\
+\
+            <div id="teacherControls" class="hidden w-full flex flex-col items-center mt-6">\
+                <div class="flex flex-col sm:flex-row items-stretch justify-center gap-3 w-full max-w-lg">\
+                    <div id="connectionStatus" class="flex-1 bg-blue-50 text-blue-700 font-bold px-4 py-3 rounded-2xl border border-blue-200 shadow-sm text-center transition-colors flex flex-col justify-center items-center">\
+                        <span class="text-sm mb-1">\uc0\u1514 \u1500 \u1502 \u1497 \u1491 \u1497 \u1501  \u1502 \u1495 \u1493 \u1489 \u1512 \u1497 \u1501 :</span>\
+                        <span class="text-2xl font-black"><span id="connectedStudentsCount">0</span> / <span id="targetStudentsCount">0</span></span>\
+                    </div>\
+                    <div class="flex-1 flex flex-col justify-center gap-2">\
+                        <button id="spinBtn" onclick="teacherSpinWheel()" class="spin-button text-white text-xl font-black py-4 px-4 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 w-full h-full">\
+                            \uc0\u1505 \u1493 \u1489 \u1489  \u1488 \u1514  \u1492 \u1490 \u1500 \u1490 \u1500 !\
+                        </button>\
+                    </div>\
+                </div>\
+                <button onclick="forceEnableSpin()" id="forceSpinBtn" class="mt-3 text-blue-500 font-bold hover:text-blue-700 transition text-xs hidden">\
+                    \uc0\u1492 \u1514 \u1495 \u1500  \u1500 \u1502 \u1512 \u1493 \u1514  \u1513 \u1495 \u1505 \u1512 \u1497 \u1501  \u1514 \u1500 \u1502 \u1497 \u1491 \u1497 \u1501 \
+                </button>\
+                <button onclick="teacherResetGame()" class="mt-4 py-2 text-indigo-500 font-bold bg-white/50 border border-indigo-100 rounded-xl hover:bg-white transition text-xs px-6">\
+                    \uc0\u55357 \u56580  \u1488 \u1497 \u1508 \u1493 \u1505  \u1502 \u1513 \u1495 \u1511  (\u1502 \u1495 \u1497 \u1511 \u1514  \u1492 \u1497 \u1505 \u1496 \u1493 \u1512 \u1497 \u1492 )\
+                </button>\
+            </div>\
+            \
+            <div id="studentWaitingText" class="mt-8 text-center hidden">\
+                <p class="text-xl font-bold text-slate-500 animate-pulse">\uc0\u1502 \u1502 \u1514 \u1497 \u1504 \u1497 \u1501  \u1500 \u1502 \u1493 \u1512 \u1492  \u1513 \u1497 \u1505 \u1493 \u1489 \u1489  \u1488 \u1514  \u1492 \u1490 \u1500 \u1490 \u1500 ...</p>\
+            </div>\
+\
+            <div id="result" class="mt-4 text-6xl md:text-8xl font-black h-20 md:h-24 flex items-center justify-center"></div>\
+        </div>\
+\
+        <!-- \uc0\u1506 \u1502 \u1493 \u1491 \u1492 : \u1496 \u1489 \u1500 \u1514  \u1502 \u1493 \u1489 \u1497 \u1500 \u1497 \u1501  (\u1510 \u1491  \u1513 \u1502 \u1488 \u1500 ) -->\
+        <div class="lg:col-span-3 space-y-4 md:space-y-6 order-3">\
+            <div class="glass p-5 rounded-[1.5rem] md:rounded-[2rem]">\
+                <h3 class="text-lg font-bold mb-3 text-slate-800">\uc0\u55356 \u57286  \u1496 \u1489 \u1500 \u1514  \u1502 \u1493 \u1489 \u1497 \u1500 \u1497 \u1501 </h3>\
+                <div id="leaderboard" class="space-y-2 max-h-[250px] overflow-y-auto pr-1">\
+                    <!-- \uc0\u1497 \u1502 \u1493 \u1500 \u1488  \u1488 \u1493 \u1496 \u1493 \u1502 \u1496 \u1497 \u1514  -->\
+                </div>\
+            </div>\
+        </div>\
+    </main>\
+\
+    <!-- \uc0\u1502 \u1493 \u1491 \u1500  \u1514 \u1513 \u1493 \u1489 \u1493 \u1514  (\u1500 \u1514 \u1500 \u1502 \u1497 \u1491 ) -->\
+    <div id="answerModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">\
+        <div class="bg-white/95 backdrop-blur-md p-6 md:p-8 rounded-[2rem] w-11/12 max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform duration-300">\
+            <div class="text-center mb-6">\
+                <div class="text-indigo-500 font-bold text-sm mb-1 animate-pulse">\uc0\u1502 \u1492 \u1512 \u1493 ! \u1492 \u1512 \u1488 \u1513 \u1493 \u1503  \u1513 \u1502 \u1505 \u1497 \u1497 \u1501  \u1506 \u1493 \u1510 \u1512  \u1488 \u1514  \u1492 \u1513 \u1506 \u1493 \u1503 !</div>\
+                <div id="modalBigLetter" class="text-7xl md:text-9xl font-black text-indigo-600 drop-shadow-lg mb-2">\uc0\u1488 </div>\
+                <div class="h-1 w-20 bg-gradient-to-r from-indigo-500 to-pink-500 mx-auto rounded-full"></div>\
+            </div>\
+            <div id="answerInputs" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-8">\
+                <!-- \uc0\u1492 \u1513 \u1491 \u1493 \u1514  \u1497 \u1497 \u1493 \u1493 \u1510 \u1512 \u1493  \u1499 \u1488 \u1503  \u1491 \u1497 \u1504 \u1502 \u1497 \u1514  -->\
+            </div>\
+            <div class="flex justify-center">\
+                <button onclick="studentSubmitAnswers()" class="px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black rounded-2xl shadow-xl hover:scale-105 active:scale-95 text-lg w-full sm:w-auto">\
+                    \uc0\u1505 \u1497 \u1497 \u1502 \u1514 \u1497 !\
+                </button>\
+            </div>\
+        </div>\
+    </div>\
+\
+    <!-- \uc0\u1502 \u1493 \u1491 \u1500  \u1492 \u1502 \u1514 \u1504 \u1492  \u1500 \u1514 \u1500 \u1502 \u1497 \u1491 \u1497 \u1501  -->\
+    <div id="waitingModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md hidden">\
+        <div class="bg-white p-8 rounded-[2rem] text-center max-w-sm w-11/12 shadow-2xl">\
+            <div class="text-5xl mb-4">\uc0\u9201 \u65039 </div>\
+            <h2 id="waitingModalTitle" class="text-2xl font-black text-slate-800 mb-2">\uc0\u1492 \u1505 \u1497 \u1489 \u1493 \u1489  \u1492 \u1505 \u1514 \u1497 \u1497 \u1501 !</h2>\
+            <p id="waitingModalDesc" class="text-slate-600 font-semibold mb-6">\uc0\u1492 \u1502 \u1493 \u1512 \u1492  \u1489 \u1493 \u1491 \u1511  \u1488 \u1514  \u1492 \u1514 \u1513 \u1493 \u1489 \u1493 \u1514  \u1506 \u1499 \u1513 \u1497 \u1493 ...</p>\
+            <div class="loader mx-auto border-indigo-500 border-t-indigo-200"></div>\
+        </div>\
+    </div>\
+\
+    <!-- \uc0\u1502 \u1493 \u1491 \u1500  \u1489 \u1491 \u1497 \u1511 \u1492  \u1500 \u1502 \u1493 \u1512 \u1492  -->\
+    <div id="evaluationModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md hidden">\
+        <div class="bg-white p-6 md:p-8 rounded-[2rem] w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">\
+            <h2 class="text-2xl font-black text-slate-800 mb-1 border-b pb-4">\
+                \uc0\u1489 \u1491 \u1497 \u1511 \u1514  \u1514 \u1513 \u1493 \u1489 \u1493 \u1514 : <span id="evalStudentName" class="text-indigo-600"></span>\
+            </h2>\
+            <div class="bg-indigo-50 text-indigo-800 px-4 py-2 rounded-lg font-bold text-sm mb-6 inline-block mt-4">\
+                \uc0\u1488 \u1493 \u1514  \u1492 \u1505 \u1497 \u1489 \u1493 \u1489 : <span id="evalLetter" class="text-xl"></span>\
+            </div>\
+            \
+            <div id="evalAnswersList" class="space-y-3 mb-8">\
+                <!-- \uc0\u1514 \u1513 \u1493 \u1489 \u1493 \u1514  \u1492 \u1514 \u1500 \u1502 \u1497 \u1491  \u1497 \u1493 \u1508 \u1497 \u1506 \u1493  \u1499 \u1488 \u1503  -->\
+            </div>\
+            \
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center">\
+                <label class="block font-bold text-slate-700 mb-4 text-lg">\uc0\u1499 \u1502 \u1492  \u1504 \u1511 \u1493 \u1491 \u1493 \u1514  \u1502 \u1490 \u1497 \u1506  \u1500 \u1493 ?</label>\
+                <div class="flex items-center justify-center gap-4 mb-6">\
+                    <input type="range" id="evalScoreSlider" min="0" max="10" value="10" class="w-full max-w-xs accent-indigo-600" oninput="document.getElementById('evalScoreValue').innerText = this.value">\
+                    <span id="evalScoreValue" class="text-3xl font-black text-indigo-600 w-12">10</span>\
+                </div>\
+                <button onclick="teacherSubmitEvaluation()" class="w-full py-4 bg-green-500 text-white font-black text-xl rounded-xl shadow-lg hover:bg-green-600 transition active:scale-95">\
+                    \uc0\u1488 \u1513 \u1512  \u1493 \u1492 \u1506 \u1504 \u1511  \u1504 \u1511 \u1493 \u1491 \u1493 \u1514 !\
+                </button>\
+            </div>\
+        </div>\
+    </div>\
+\
+    <!-- \uc0\u1505 \u1511 \u1512 \u1497 \u1508 \u1496 \u1497 \u1501  \u1513 \u1500  Firebase \u1493 \u1492 \u1502 \u1513 \u1495 \u1511  -->\
+    <script type="module">\
+        import \{ initializeApp \} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";\
+        import \{ getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken \} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";\
+        import \{ getFirestore, doc, setDoc, onSnapshot, collection, updateDoc, increment, getDoc \} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";\
+\
+        // \uc0\u1488 \u1514 \u1495 \u1493 \u1500  Firebase\
+        const firebaseConfig = \{\
+            apiKey: "AIzaSyBVc3GaUaLFOyGNUba7JVHU7xMdHXYPzKk",\
+            authDomain: "countrycity-c7293.firebaseapp.com",\
+            projectId: "countrycity-c7293",\
+            storageBucket: "countrycity-c7293.firebasestorage.app",\
+            messagingSenderId: "480935929836",\
+            appId: "1:480935929836:web:1e02b33694e97b4b27c2c9",\
+            measurementId: "G-PJNT2TP6PD"\
+        \};\
+        const app = initializeApp(firebaseConfig);\
+        const auth = getAuth(app);\
+        const db = getFirestore(app);\
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'letter-challenge-v1';\
+\
+        // \uc0\u1502 \u1513 \u1514 \u1504 \u1497  \u1502 \u1513 \u1495 \u1511  \u1493 \u1490 \u1500 \u1493 \u1489 \u1500 \u1497 \u1501 \
+        let currentUser = null; // \{ uid, name, role, score \}\
+        let currentGameState = null;\
+        let unsubscribeState = null;\
+        let unsubscribePlayers = null;\
+        let hasAutoGradedThisRound = false;\
+        let currentStudentsCount = 0; // \uc0\u1502 \u1506 \u1511 \u1489  \u1488 \u1495 \u1512  \u1499 \u1502 \u1493 \u1514  \u1492 \u1514 \u1500 \u1502 \u1497 \u1491 \u1497 \u1501  \u1492 \u1502 \u1495 \u1493 \u1489 \u1512 \u1497 \u1501 \
+\
+        const originalAlphabet = "\uc0\u1488 \u1489 \u1490 \u1491 \u1492 \u1493 \u1494 \u1495 \u1496 \u1497 \u1499 \u1500 \u1502 \u1504 \u1505 \u1506 \u1508 \u1510 \u1511 \u1512 \u1513 \u1514 ".split("");\
+        const wheelColors = ['#6366f1', '#8b5cf6', '#d946ef', '#ec4899', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6'];\
+        \
+        const canvas = document.getElementById("wheel");\
+        const ctx = canvas.getContext("2d");\
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();\
+\
+        // \uc0\u1492 \u1508 \u1504 \u1497 \u1493 \u1514  (References) \u1513 \u1500  Firestore\
+        let roomId = null;\
+        let stateRef = null;\
+        let playersRef = null;\
+        let getMyPlayerRef = null;\
+\
+        // \uc0\u1508 \u1493 \u1504 \u1511 \u1510 \u1497 \u1497 \u1514  \u1510 \u1500 \u1497 \u1500 \u1497 \u1501 \
+        function playTick(freq = 250, duration = 0.05) \{\
+            if (audioCtx.state === 'suspended') return;\
+            const osc = audioCtx.createOscillator();\
+            const gain = audioCtx.createGain();\
+            osc.type = 'sine';\
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);\
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);\
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);\
+            osc.connect(gain);\
+            gain.connect(audioCtx.destination);\
+            osc.start();\
+            osc.stop(audioCtx.currentTime + duration);\
+        \}\
+\
+        // --- \uc0\u1488 \u1514 \u1495 \u1493 \u1500  \u1493 \u1492 \u1514 \u1495 \u1489 \u1512 \u1493 \u1514  ---\
+        async function init() \{\
+            try \{\
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) \{\
+                    await signInWithCustomToken(auth, __initial_auth_token);\
+                \} else \{\
+                    await signInAnonymously(auth);\
+                \}\
+            \} catch (error) \{\
+                console.error("Auth error:", error);\
+                alert("\uc0\u1513 \u1490 \u1497 \u1488 \u1492  \u1489 \u1492 \u1514 \u1495 \u1489 \u1512 \u1493 \u1514  \u1500 \u1513 \u1512 \u1514 . \u1504 \u1505 \u1493  \u1500 \u1512 \u1506 \u1504 \u1503  \u1488 \u1514  \u1492 \u1506 \u1502 \u1493 \u1491 .");\
+            \}\
+        \}\
+\
+        onAuthStateChanged(auth, user => \{\
+            document.getElementById('loginLoader').classList.add('hidden');\
+            if (user) \{\
+                window.firebaseUser = user; // \uc0\u1504 \u1513 \u1502 \u1493 \u1512  \u1489 -window \u1500 \u1490 \u1497 \u1513 \u1492  \u1511 \u1500 \u1492 \
+            \}\
+        \});\
+\
+        window.joinGame = async (role) => \{\
+            const nameInput = document.getElementById('playerNameInput').value.trim();\
+            if (!nameInput) return alert("\uc0\u1488 \u1504 \u1488  \u1492 \u1499 \u1504 \u1497 \u1505 \u1493  \u1513 \u1501 !");\
+            if (!window.firebaseUser) return alert("\uc0\u1496 \u1512 \u1501  \u1492 \u1514 \u1495 \u1489 \u1512 \u1504 \u1493  \u1500 \u1513 \u1512 \u1514 , \u1488 \u1504 \u1488  \u1492 \u1502 \u1514 \u1497 \u1504 \u1493  \u1513 \u1504 \u1497 \u1492 .");\
+\
+            let targetStudents = 0;\
+            if (role === 'student') \{\
+                roomId = document.getElementById('roomCodeInput').value.trim();\
+                if (!roomId) return alert("\uc0\u1488 \u1504 \u1488  \u1492 \u1499 \u1504 \u1497 \u1505 \u1493  \u1511 \u1493 \u1491  \u1495 \u1491 \u1512  \u1513 \u1502 \u1505 \u1512  \u1492 \u1502 \u1493 \u1512 \u1492 !");\
+            \} else \{\
+                // \uc0\u1502 \u1493 \u1512 \u1492  - \u1511 \u1500 \u1497 \u1496 \u1514  \u1502 \u1505 \u1508 \u1512  \u1514 \u1500 \u1502 \u1497 \u1491 \u1497 \u1501  \u1493 \u1497 \u1510 \u1497 \u1512 \u1514  \u1511 \u1493 \u1491  \u1495 \u1491 \u1512 \
+                targetStudents = parseInt(document.getElementById('targetStudentsInput').value);\
+                if (!targetStudents || targetStudents <= 0) return alert("\uc0\u1488 \u1504 \u1488  \u1492 \u1490 \u1491 \u1497 \u1512 \u1493  \u1499 \u1502 \u1492  \u1514 \u1500 \u1502 \u1497 \u1491 \u1497 \u1501  \u1497 \u1513 \u1514 \u1514 \u1508 \u1493  \u1489 \u1502 \u1513 \u1495 \u1511 !");\
+                roomId = Math.floor(1000 + Math.random() * 9000).toString();\
+            \}\
+\
+            // \uc0\u1506 \u1491 \u1499 \u1493 \u1503  \u1492 \u1508 \u1504 \u1497 \u1493 \u1514  Firestore \u1500 \u1508 \u1497  \u1511 \u1493 \u1491  \u1492 \u1495 \u1491 \u1512  \u1492 \u1505 \u1508 \u1510 \u1497 \u1508 \u1497 \
+            stateRef = doc(db, 'artifacts', appId, 'public', 'data', 'gameStates', roomId);\
+            playersRef = collection(db, 'artifacts', appId, 'public', 'data', `room_$\{roomId\}_players`);\
+            getMyPlayerRef = () => doc(db, 'artifacts', appId, 'public', 'data', `room_$\{roomId\}_players`, currentUser.uid);\
+\
+            if (role === 'student') \{\
+                const snap = await getDoc(stateRef);\
+                if (!snap.exists()) \{\
+                    return alert("\uc0\u1492 \u1495 \u1491 \u1512  \u1500 \u1488  \u1511 \u1497 \u1497 \u1501 ! \u1488 \u1504 \u1488  \u1489 \u1491 \u1511 \u1493  \u1513 \u1493 \u1489  \u1488 \u1514  \u1492 \u1511 \u1493 \u1491  \u1513 \u1492 \u1494 \u1504 \u1514 \u1501 .");\
+                \}\
+            \}\
+\
+            currentUser = \{\
+                uid: window.firebaseUser.uid,\
+                name: nameInput,\
+                role: role,\
+                score: 0\
+            \};\
+\
+            // \uc0\u1497 \u1510 \u1497 \u1512 \u1514 /\u1506 \u1491 \u1499 \u1493 \u1503  \u1513 \u1495 \u1511 \u1503  \u1489 \u1502 \u1505 \u1491  \u1492 \u1504 \u1514 \u1493 \u1504 \u1497 \u1501 \
+            await setDoc(getMyPlayerRef(), currentUser);\
+\
+            // \uc0\u1488 \u1501  \u1494 \u1492  \u1502 \u1493 \u1512 \u1492 , \u1502 \u1488 \u1514 \u1495 \u1500 \u1497 \u1501  \u1495 \u1491 \u1512  \u1495 \u1491 \u1513  \u1493 \u1504 \u1511 \u1497 \
+            if (role === 'teacher') \{\
+                await setDoc(stateRef, \{\
+                    status: 'waiting',\
+                    alphabet: [...originalAlphabet],\
+                    categories: [\
+                        \{ id: 1, name: '\uc0\u1488 \u1512 \u1509 ', icon: '\u55356 \u57101 ' \}, \{ id: 2, name: '\u1506 \u1497 \u1512 ', icon: '\u55356 \u57305 \u65039 ' \},\
+                        \{ id: 3, name: '\uc0\u1495 \u1497 \u1492 ', icon: '\u55358 \u56705 ' \}, \{ id: 4, name: '\u1510 \u1493 \u1502 \u1495 ', icon: '\u55356 \u57137 ' \},\
+                        \{ id: 5, name: '\uc0\u1491 \u1493 \u1502 \u1501 ', icon: '\u55357 \u56550 ' \}, \{ id: 6, name: '\u1513 \u1501 ', icon: '\u55357 \u56420 ' \}\
+                    ],\
+                    spinTarget: 0,\
+                    currentLetter: '',\
+                    winnerData: null,\
+                    targetStudents: targetStudents // \uc0\u1513 \u1502 \u1497 \u1512 \u1514  \u1499 \u1502 \u1493 \u1514  \u1492 \u1514 \u1500 \u1502 \u1497 \u1491 \u1497 \u1501  \u1492 \u1512 \u1510 \u1493 \u1497 \u1492 \
+                \});\
+            \}\
+\
+            setupUI();\
+            // \uc0\u1492 \u1506 \u1512 \u1492 : \u1492 \u1505 \u1512 \u1504 \u1493  \u1488 \u1514  \u1511 \u1512 \u1497 \u1488 \u1514  \u1492 -startListeners \u1492 \u1513 \u1490 \u1493 \u1497 \u1492  (\u1492 \u1497 \u1488  \u1513 \u1490 \u1512 \u1502 \u1492  \u1500 \u1490 \u1500 \u1490 \u1500  \u1500 \u1492 \u1497 \u1514 \u1511 \u1506 )\
+        \};\
+\
+        function setupUI() \{\
+            document.getElementById('loginScreen').classList.add('hidden');\
+            document.getElementById('mainHeader').classList.remove('hidden');\
+            document.getElementById('gameMain').classList.remove('hidden');\
+            \
+            document.getElementById('userNameDisplay').innerText = currentUser.name;\
+            document.getElementById('displayRoomCode').innerText = roomId;\
+\
+            // \uc0\u1495 \u1513 \u1497 \u1508 \u1514  \u1499 \u1508 \u1514 \u1493 \u1512 \u1497  \u1492 \u1502 \u1493 \u1512 \u1492  \u1488 \u1493  \u1502 \u1505 \u1498  \u1492 \u1492 \u1502 \u1514 \u1504 \u1492  \u1500 \u1514 \u1500 \u1502 \u1497 \u1491  (\u1492 \u1495 \u1500 \u1511  \u1513 \u1492 \u1497 \u1492  \u1495 \u1505 \u1512 )\
+            if (currentUser.role === 'teacher') \{\
+                document.getElementById('teacherControls').classList.remove('hidden');\
+                document.getElementById('teacherCategoryControls').classList.remove('hidden');\
+                document.getElementById('studentWaitingText').classList.add('hidden');\
+            \} else \{\
+                document.getElementById('teacherControls').classList.add('hidden');\
+                document.getElementById('teacherCategoryControls').classList.add('hidden');\
+                document.getElementById('studentWaitingText').classList.remove('hidden');\
+            \}\
+\
+            unsubscribeState = onSnapshot(stateRef, (docSnap) => \{\
+                if (docSnap.exists()) \{\
+                    const data = docSnap.data();\
+                    handleStateUpdate(data);\
+                \}\
+            \}, (err) => console.error("State sync error:", err));\
+\
+            // \uc0\u1492 \u1488 \u1494 \u1504 \u1492  \u1500 \u1496 \u1489 \u1500 \u1514  \u1513 \u1495 \u1511 \u1504 \u1497 \u1501 \
+            unsubscribePlayers = onSnapshot(playersRef, (snapshot) => \{\
+                let players = [];\
+                snapshot.forEach(doc => \{\
+                    const p = doc.data();\
+                    players.push(p);\
+                    if (p.uid === currentUser.uid) \{\
+                        currentUser.score = p.score;\
+                        document.getElementById('userScoreDisplay').innerText = p.score;\
+                    \}\
+                \});\
+                // \uc0\u1506 \u1491 \u1499 \u1493 \u1503  \u1496 \u1489 \u1500 \u1514  \u1502 \u1493 \u1489 \u1497 \u1500 \u1497 \u1501  (\u1505 \u1497 \u1504 \u1493 \u1503  \u1492 \u1502 \u1493 \u1512 \u1492  \u1502 \u1492 \u1512 \u1513 \u1497 \u1502 \u1492 )\
+                const studentsOnly = players.filter(p => p.role === 'student');\
+                studentsOnly.sort((a, b) => b.score - a.score);\
+                const lbContainer = document.getElementById('leaderboard');\
+                lbContainer.innerHTML = studentsOnly.map(p => `\
+                    <div class="flex justify-between items-center p-2 rounded-xl border $\{p.uid === currentUser.uid ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-100'\} shadow-sm text-sm">\
+                        <div class="flex items-center gap-2">\
+                            <span>\uc0\u55357 \u56424 \u8205 \u55356 \u57235 </span>\
+                            <span class="font-bold text-slate-700">$\{p.name\}</span>\
+                        </div>\
+                        <div class="font-black text-indigo-600">$\{p.score\} <span class="text-[10px] text-slate-400 font-normal">\uc0\u1504 \u1511 '</span></div>\
+                    </div>\
+                `).join('');\
+                \
+                // \uc0\u1506 \u1491 \u1499 \u1493 \u1503  \u1502 \u1505 \u1508 \u1512  \u1492 \u1514 \u1500 \u1502 \u1497 \u1491 \u1497 \u1501  \u1500 \u1502 \u1493 \u1512 \u1492 \
+                currentStudentsCount = studentsOnly.length;\
+                updateTeacherSpinButton();\
+            \});\
+        \}\
+\
+        function updateTeacherSpinButton() \{\
+            if (!currentGameState || !currentUser || currentUser.role !== 'teacher') return;\
+            \
+            const spinBtn = document.getElementById('spinBtn');\
+            const target = currentGameState.targetStudents || 0;\
+            \
+            document.getElementById('connectedStudentsCount').innerText = currentStudentsCount;\
+            document.getElementById('targetStudentsCount').innerText = target;\
+\
+            if (currentGameState.status === 'waiting') \{\
+                if (currentStudentsCount < target) \{\
+                    spinBtn.disabled = true;\
+                    spinBtn.innerText = "\uc0\u1502 \u1502 \u1514 \u1497 \u1503  \u1500 \u1514 \u1500 \u1502 \u1497 \u1491 \u1497 \u1501 ...";\
+                    document.getElementById('connectionStatus').classList.replace('bg-green-50', 'bg-blue-50');\
+                    document.getElementById('connectionStatus').classList.replace('text-green-700', 'text-blue-700');\
+                    document.getElementById('forceSpinBtn').classList.remove('hidden');\
+                \} else \{\
+                    spinBtn.disabled = false;\
+                    spinBtn.innerText = "\uc0\u1505 \u1493 \u1489 \u1489  \u1488 \u1514  \u1492 \u1490 \u1500 \u1490 \u1500 !";\
+                    document.getElementById('connectionStatus').classList.replace('bg-blue-50', 'bg-green-50');\
+                    document.getElementById('connectionStatus').classList.replace('text-blue-700', 'text-green-700');\
+                    document.getElementById('forceSpinBtn').classList.add('hidden');\
+                \}\
+            \}\
+        \}\
+\
+        // --- \uc0\u1496 \u1497 \u1508 \u1493 \u1500  \u1489 \u1502 \u1510 \u1489 \u1497  \u1492 \u1502 \u1513 \u1495 \u1511  \u1492 \u1502 \u1512 \u1499 \u1494 \u1497 \u1497 \u1501  ---\
+        let tickInterval = null;\
+\
+        function handleStateUpdate(data) \{\
+            currentGameState = data;\
+            \
+            // \uc0\u1506 \u1491 \u1499 \u1493 \u1503  \u1512 \u1513 \u1497 \u1502 \u1493 \u1514  \u1493 \u1497 \u1494 \u1493 \u1488 \u1500 \u1497 \u1493 \u1514 \
+            renderCategories(data.categories || []);\
+            drawWheel(data.alphabet || []);\
+\
+            // \uc0\u1504 \u1497 \u1492 \u1493 \u1500  \u1502 \u1510 \u1489 \u1497 \u1501 \
+            switch (data.status) \{\
+                case 'waiting':\
+                    resetModals();\
+                    document.getElementById('result').innerHTML = "";\
+                    hasAutoGradedThisRound = false;\
+                    canvas.style.transform = `rotate($\{data.spinTarget\}deg)`;\
+                    updateTeacherSpinButton();\
+                    break;\
+                \
+                case 'spinning':\
+                    resetModals();\
+                    if (currentUser && currentUser.role === 'teacher') \{\
+                        document.getElementById('spinBtn').disabled = true;\
+                        document.getElementById('spinBtn').innerText = "\uc0\u1502 \u1490 \u1512 \u1497 \u1500 ...";\
+                        document.getElementById('forceSpinBtn').classList.add('hidden');\
+                    \}\
+                    document.getElementById('result').innerHTML = "";\
+                    \
+                    if (audioCtx.state === 'suspended') audioCtx.resume();\
+                    document.getElementById('pointer').classList.add("pointer-active");\
+                    \
+                    // \uc0\u1505 \u1497 \u1489 \u1493 \u1489  \u1493 \u1497 \u1494 \u1493 \u1488 \u1500 \u1497  \u1500 \u1499 \u1493 \u1500 \u1501 \
+                    canvas.style.transform = `rotate($\{data.spinTarget\}deg)`;\
+                    \
+                    // \uc0\u1510 \u1500 \u1497 \u1500  \u1505 \u1497 \u1489 \u1493 \u1489  \u1502 \u1511 \u1493 \u1502 \u1497 \
+                    if (tickInterval) clearInterval(tickInterval);\
+                    tickInterval = setInterval(() => playTick(280), 160);\
+                    setTimeout(() => \{\
+                        clearInterval(tickInterval);\
+                        document.getElementById('pointer').classList.remove("pointer-active");\
+                    \}, 4800);\
+                    break;\
+\
+                case 'answering':\
+                    resetModals();\
+                    document.getElementById('result').innerHTML = `<span class="letter-winner text-indigo-600">$\{data.currentLetter\}</span>`;\
+                    hasAutoGradedThisRound = false;\
+                    \
+                    // \uc0\u1488 \u1501  \u1488 \u1504 \u1497  \u1514 \u1500 \u1502 \u1497 \u1491 , \u1508 \u1514 \u1495  \u1488 \u1514  \u1502 \u1493 \u1491 \u1500  \u1492 \u1514 \u1513 \u1493 \u1489 \u1493 \u1514 \
+                    if (currentUser.role === 'student') \{\
+                        openAnswerModal(data.currentLetter, data.categories);\
+                    \}\
+                    break;\
+\
+                case 'evaluating':\
+                    if (currentUser.role === 'teacher') \{\
+                        // \uc0\u1492 \u1502 \u1493 \u1512 \u1492  \u1489 \u1493 \u1491 \u1511  \u1488 \u1514  \u1492 \u1502 \u1504 \u1510 \u1495 \
+                        openEvaluationModal(data.winnerData);\
+                    \} else if (currentUser.role === 'student') \{\
+                        closeAnswerModal();\
+                        \
+                        if (data.winnerData.uid === currentUser.uid) \{\
+                            // \uc0\u1488 \u1504 \u1497  \u1492 \u1502 \u1504 \u1510 \u1495  \u1513 \u1505 \u1497 \u1497 \u1501  \u1512 \u1488 \u1513 \u1493 \u1503 \
+                            showWaitingModal("\uc0\u1499 \u1500  \u1492 \u1499 \u1489 \u1493 \u1491 !", "\u1488 \u1514 \u1492  \u1492 \u1512 \u1488 \u1513 \u1493 \u1503  \u1513 \u1505 \u1497 \u1497 \u1501 . \u1492 \u1502 \u1493 \u1512 \u1492  \u1489 \u1493 \u1491 \u1511  \u1488 \u1514  \u1492 \u1496 \u1493 \u1508 \u1505  \u1513 \u1500 \u1498  \u1499 \u1506 \u1514 .");\
+                        \} else \{\
+                            // \uc0\u1488 \u1504 \u1497  \u1500 \u1488  \u1492 \u1502 \u1504 \u1510 \u1495 . \u1502 \u1490 \u1497 \u1506  \u1500 \u1497  \u1504 \u1511 \u1493 \u1491 \u1493 \u1514  \u1506 \u1500  \u1502 \u1492  \u1513 \u1492 \u1505 \u1508 \u1511 \u1514 \u1497 !\
+                            showWaitingModal("\uc0\u1492 \u1505 \u1497 \u1489 \u1493 \u1489  \u1504 \u1504 \u1506 \u1500 !", `<b>$\{data.winnerData.name\}</b> \u1505 \u1497 \u1497 \u1501  \u1512 \u1488 \u1513 \u1493 \u1503 . \u1492 \u1502 \u1493 \u1512 \u1492  \u1489 \u1493 \u1491 \u1511  \u1488 \u1514  \u1514 \u1513 \u1493 \u1489 \u1493 \u1514 \u1497 \u1493 .`);\
+                            autoGradeMyIncompleteForm();\
+                        \}\
+                    \}\
+                    break;\
+            \}\
+        \}\
+\
+        // --- \uc0\u1500 \u1493 \u1490 \u1497 \u1511 \u1492  \u1510 \u1497 \u1493 \u1512  \u1493 \u1502 \u1502 \u1513 \u1511  ---\
+        function renderCategories(cats) \{\
+            const container = document.getElementById("categoriesList");\
+            const isTeacher = currentUser && currentUser.role === 'teacher';\
+            container.innerHTML = cats.map((cat, index) => `\
+                <div class="category-item flex items-center justify-between p-2 bg-white/50 rounded-xl border border-white/40 text-xs group">\
+                    <div class="flex items-center gap-2">\
+                        <span class="w-6 h-6 flex items-center justify-center bg-indigo-100 rounded-lg text-[10px]">$\{cat.icon || '\uc0\u55356 \u57335 \u65039 '\}</span>\
+                        <span class="font-semibold text-slate-700">$\{cat.name\}</span>\
+                    </div>\
+                    $\{isTeacher ? `<button onclick="removeCategory($\{index\})" class="opacity-0 lg:group-hover:opacity-100 text-red-400 hover:text-red-600 font-bold px-2">\uc0\u10005 </button>` : ''\}\
+                </div>\
+            `).join("");\
+        \}\
+\
+        function drawWheel(alphabet) \{\
+            const centerX = canvas.width / 2;\
+            const centerY = canvas.height / 2;\
+            const radius = centerX - 15;\
+            ctx.clearRect(0, 0, canvas.width, canvas.height);\
+\
+            if (alphabet.length === 0) \{\
+                ctx.fillStyle = "#cbd5e1";\
+                ctx.beginPath(); ctx.arc(centerX, centerY, radius, 0, Math.PI * 2); ctx.fill();\
+                ctx.fillStyle = "white"; ctx.textAlign = "center"; ctx.font = "bold 24px Assistant";\
+                ctx.fillText("\uc0\u1504 \u1490 \u1502 \u1512 \u1493  \u1492 \u1488 \u1493 \u1514 \u1497 \u1493 \u1514 ", centerX, centerY);\
+                return;\
+            \}\
+\
+            const step = (Math.PI * 2) / alphabet.length;\
+            alphabet.forEach((letter, i) => \{\
+                const angle = i * step;\
+                ctx.beginPath();\
+                ctx.fillStyle = wheelColors[i % wheelColors.length];\
+                ctx.moveTo(centerX, centerY);\
+                ctx.arc(centerX, centerY, radius, angle, angle + step);\
+                ctx.fill();\
+                \
+                ctx.save();\
+                ctx.translate(centerX, centerY);\
+                ctx.rotate(angle + step / 2);\
+                ctx.textAlign = "right";\
+                ctx.fillStyle = "white";\
+                const fontSize = alphabet.length > 15 ? 32 : (alphabet.length > 5 ? 40 : 55);\
+                ctx.font = `bold $\{fontSize\}px Assistant`;\
+                ctx.fillText(letter, radius - 35, 12);\
+                ctx.restore();\
+            \});\
+\
+            // \uc0\u1506 \u1497 \u1490 \u1493 \u1500  \u1508 \u1504 \u1497 \u1502 \u1497 \
+            const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 45);\
+            grad.addColorStop(0, '#ffffff'); grad.addColorStop(1, '#f1f5f9');\
+            ctx.beginPath(); ctx.arc(centerX, centerY, 45, 0, Math.PI * 2);\
+            ctx.fillStyle = grad; ctx.fill();\
+        \}\
+\
+        // --- \uc0\u1508 \u1506 \u1493 \u1500 \u1493 \u1514  \u1502 \u1493 \u1512 \u1492  ---\
+        window.forceEnableSpin = () => \{\
+            document.getElementById('spinBtn').disabled = false;\
+            document.getElementById('spinBtn').innerText = "\uc0\u1505 \u1493 \u1489 \u1489  \u1488 \u1514  \u1492 \u1490 \u1500 \u1490 \u1500 !";\
+            document.getElementById('forceSpinBtn').classList.add('hidden');\
+        \};\
+\
+        window.teacherSpinWheel = async () => \{\
+            if (!currentGameState || currentGameState.alphabet.length === 0 || currentGameState.status === 'spinning') return;\
+            \
+            const extraSpin = Math.floor(Math.random() * 360) + 2160; \
+            const newRotation = (currentGameState.spinTarget || 0) + extraSpin;\
+\
+            // \uc0\u1506 \u1491 \u1499 \u1493 \u1503  \u1492 \u1505 \u1496 \u1496 \u1493 \u1505  \u1500 \u1505 \u1495 \u1512 \u1493 \u1512  - \u1499 \u1500  \u1492 \u1502 \u1505 \u1499 \u1497 \u1501  \u1502 \u1514 \u1495 \u1497 \u1500 \u1497 \u1501  \u1500 \u1492 \u1505 \u1514 \u1493 \u1489 \u1489 \
+            await updateDoc(stateRef, \{\
+                status: 'spinning',\
+                spinTarget: newRotation\
+            \});\
+\
+            // \uc0\u1492 \u1502 \u1493 \u1512 \u1492  \u1502 \u1495 \u1513 \u1489  \u1489 \u1513 \u1511 \u1496  \u1488 \u1514  \u1492 \u1488 \u1493 \u1514  \u1513 \u1514 \u1497 \u1489 \u1495 \u1512  \u1493 \u1502 \u1514 \u1494 \u1502 \u1503  \u1488 \u1514  \u1505 \u1497 \u1493 \u1501  \u1492 \u1505 \u1497 \u1489 \u1493 \u1489 \
+            setTimeout(async () => \{\
+                const actualRot = newRotation % 360;\
+                const segmentSize = 360 / currentGameState.alphabet.length;\
+                const index = Math.floor((360 - (actualRot % 360) + 270) % 360 / segmentSize);\
+                const letter = currentGameState.alphabet[index % currentGameState.alphabet.length];\
+                \
+                const newAlphabet = [...currentGameState.alphabet];\
+                newAlphabet.splice(index % currentGameState.alphabet.length, 1);\
+\
+                // \uc0\u1502 \u1506 \u1489 \u1512  \u1500 \u1513 \u1500 \u1489  \u1492 \u1514 \u1513 \u1493 \u1489 \u1493 \u1514 \
+                await updateDoc(stateRef, \{\
+                    status: 'answering',\
+                    currentLetter: letter,\
+                    alphabet: newAlphabet\
+                \});\
+            \}, 5000);\
+        \};\
+\
+        window.teacherResetGame = async () => \{\
+            if(confirm("\uc0\u1492 \u1488 \u1501  \u1500 \u1488 \u1508 \u1505  \u1488 \u1514  \u1499 \u1500  \u1492 \u1502 \u1513 \u1495 \u1511 ?")) \{\
+                await updateDoc(stateRef, \{\
+                    status: 'waiting',\
+                    alphabet: [...originalAlphabet],\
+                    currentLetter: '',\
+                    spinTarget: 0,\
+                    winnerData: null\
+                \});\
+            \}\
+        \};\
+\
+        window.addCategory = async () => \{\
+            const input = document.getElementById("newCategoryInput");\
+            const name = input.value.trim();\
+            if (name && currentGameState) \{\
+                const updatedCats = [...currentGameState.categories, \{ id: Date.now(), name: name, icon: '\uc0\u55356 \u57335 \u65039 ' \}];\
+                await updateDoc(stateRef, \{ categories: updatedCats \});\
+                input.value = "";\
+            \}\
+        \};\
+\
+        window.removeCategory = async (index) => \{\
+            if (currentGameState) \{\
+                const updatedCats = [...currentGameState.categories];\
+                updatedCats.splice(index, 1);\
+                await updateDoc(stateRef, \{ categories: updatedCats \});\
+            \}\
+        \};\
+\
+        window.teacherSubmitEvaluation = async () => \{\
+            const score = parseInt(document.getElementById('evalScoreSlider').value);\
+            const winnerUid = currentGameState.winnerData.uid;\
+            \
+            // \uc0\u1492 \u1493 \u1505 \u1508 \u1514  \u1504 \u1497 \u1511 \u1493 \u1491  \u1500 \u1502 \u1504 \u1510 \u1495  \u1500 \u1514 \u1493 \u1498  \u1492 \u1495 \u1491 \u1512  \u1492 \u1505 \u1508 \u1510 \u1497 \u1508 \u1497 \
+            const winnerRef = doc(db, 'artifacts', appId, 'public', 'data', `room_$\{roomId\}_players`, winnerUid);\
+            await updateDoc(winnerRef, \{ score: increment(score) \});\
+\
+            // \uc0\u1505 \u1490 \u1497 \u1512 \u1514  \u1492 \u1505 \u1497 \u1489 \u1493 \u1489  \u1493 \u1495 \u1494 \u1512 \u1492  \u1500 \u1492 \u1502 \u1514 \u1504 \u1492 \
+            await updateDoc(stateRef, \{\
+                status: 'waiting',\
+                winnerData: null\
+            \});\
+            document.getElementById('evaluationModal').classList.add('hidden');\
+        \};\
+\
+        // --- \uc0\u1508 \u1506 \u1493 \u1500 \u1493 \u1514  \u1514 \u1500 \u1502 \u1497 \u1491  ---\
+        function openAnswerModal(letter, categories) \{\
+            const modal = document.getElementById('answerModal');\
+            document.getElementById('modalBigLetter').innerText = letter;\
+\
+            const inputsContainer = document.getElementById('answerInputs');\
+            inputsContainer.innerHTML = categories.map(cat => `\
+                <div class="flex flex-col gap-2 bg-slate-50/50 p-3 rounded-xl border border-slate-100 input-group" data-cat="$\{cat.name\}">\
+                    <label class="font-bold text-slate-700 flex items-center gap-2 text-sm md:text-base">\
+                        <span class="bg-white p-1 rounded-md shadow-sm">$\{cat.icon || '\uc0\u55356 \u57335 \u65039 '\}</span> $\{cat.name\}\
+                    </label>\
+                    <input type="text" placeholder="\uc0\u1492 \u1511 \u1500 \u1497 \u1491 \u1493  \u1499 \u1488 \u1503 ..." class="answer-input w-full px-4 py-3 rounded-lg border-2 border-indigo-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all text-base md:text-lg font-semibold text-slate-800 shadow-sm" dir="rtl">\
+                </div>\
+            `).join('');\
+\
+            modal.classList.remove('opacity-0', 'pointer-events-none');\
+            setTimeout(() => \{\
+                const firstInput = inputsContainer.querySelector('input');\
+                if (firstInput) firstInput.focus();\
+            \}, 300);\
+        \}\
+\
+        window.studentSubmitAnswers = async () => \{\
+            // \uc0\u1511 \u1512 \u1497 \u1488 \u1514  \u1499 \u1500  \u1492 \u1514 \u1513 \u1493 \u1489 \u1493 \u1514 \
+            const inputs = document.querySelectorAll('.input-group');\
+            let answers = [];\
+            inputs.forEach(group => \{\
+                const catName = group.getAttribute('data-cat');\
+                const val = group.querySelector('input').value.trim();\
+                answers.push(\{ category: catName, value: val || '-' \});\
+            \});\
+\
+            // \uc0\u1493 \u1497 \u1491 \u1493 \u1488  \u1513 \u1492 \u1502 \u1513 \u1495 \u1511  \u1506 \u1491 \u1497 \u1497 \u1503  \u1489 \u1513 \u1500 \u1489  \u1514 \u1513 \u1493 \u1489 \u1493 \u1514  \u1499 \u1491 \u1497  \u1500 \u1502 \u1504 \u1493 \u1506  \u1499 \u1508 \u1497 \u1500 \u1493 \u1497 \u1493 \u1514  \u1500 \u1495 \u1497 \u1510 \u1492 \
+            const snap = await getDoc(stateRef);\
+            if (snap.exists() && snap.data().status === 'answering') \{\
+                // \uc0\u1488 \u1504 \u1497  \u1505 \u1497 \u1497 \u1502 \u1514 \u1497  \u1512 \u1488 \u1513 \u1493 \u1503 ! \u1504 \u1493 \u1506 \u1500  \u1488 \u1514  \u1492 \u1505 \u1497 \u1489 \u1493 \u1489 !\
+                await updateDoc(stateRef, \{\
+                    status: 'evaluating',\
+                    winnerData: \{\
+                        uid: currentUser.uid,\
+                        name: currentUser.name,\
+                        answers: answers\
+                    \}\
+                \});\
+            \}\
+        \};\
+\
+        function closeAnswerModal() \{\
+            document.getElementById('answerModal').classList.add('opacity-0', 'pointer-events-none');\
+        \}\
+\
+        async function autoGradeMyIncompleteForm() \{\
+            if (hasAutoGradedThisRound) return;\
+            hasAutoGradedThisRound = true;\
+\
+            // \uc0\u1505 \u1508 \u1497 \u1512 \u1514  \u1492 \u1513 \u1491 \u1493 \u1514  \u1492 \u1500 \u1488  \u1512 \u1497 \u1511 \u1497 \u1501 \
+            const inputs = document.querySelectorAll('.answer-input');\
+            let pointsEarned = 0;\
+            inputs.forEach(input => \{\
+                if (input.value.trim() !== '') pointsEarned++;\
+            \});\
+\
+            if (pointsEarned > 0) \{\
+                await updateDoc(getMyPlayerRef(), \{ score: increment(pointsEarned) \});\
+            \}\
+        \}\
+\
+        // --- \uc0\u1502 \u1493 \u1491 \u1500 \u1497 \u1501  \u1513 \u1500  \u1506 \u1494 \u1512  ---\
+        function showWaitingModal(title, desc) \{\
+            document.getElementById('waitingModalTitle').innerText = title;\
+            document.getElementById('waitingModalDesc').innerHTML = desc;\
+            document.getElementById('waitingModal').classList.remove('hidden');\
+        \}\
+\
+        function openEvaluationModal(winnerData) \{\
+            document.getElementById('evalStudentName').innerText = winnerData.name;\
+            document.getElementById('evalLetter').innerText = currentGameState.currentLetter;\
+            document.getElementById('evalScoreSlider').value = 10;\
+            document.getElementById('evalScoreValue').innerText = "10";\
+            \
+            const list = document.getElementById('evalAnswersList');\
+            list.innerHTML = winnerData.answers.map(ans => `\
+                <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm">\
+                    <span class="font-bold text-slate-500 w-1/3">$\{ans.category\}</span>\
+                    <span class="font-black text-indigo-700 w-2/3 text-left $\{ans.value === '-' ? 'text-slate-300' : ''\}">$\{ans.value\}</span>\
+                </div>\
+            `).join('');\
+\
+            document.getElementById('evaluationModal').classList.remove('hidden');\
+        \}\
+\
+        function resetModals() \{\
+            document.getElementById('waitingModal').classList.add('hidden');\
+            document.getElementById('evaluationModal').classList.add('hidden');\
+            closeAnswerModal();\
+        \}\
+\
+        // \uc0\u1492 \u1508 \u1506 \u1500 \u1514  \u1492 \u1488 \u1514 \u1495 \u1493 \u1500  \u1489 \u1496 \u1506 \u1497 \u1504 \u1492 \
+        document.addEventListener('DOMContentLoaded', init);\
+    </script>\
+</body>\
+</html>}

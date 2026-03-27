@@ -281,11 +281,23 @@
         </div>
     </div>
 
+    <!-- מודל חדר מלא -->
+    <div id="fullRoomModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-indigo-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="glass bg-white/90 p-6 md:p-8 rounded-[2rem] w-11/12 max-w-sm text-center shadow-2xl border border-white/80 transform scale-95 transition-transform duration-300" id="fullRoomContent">
+            <div class="text-5xl mb-4 drop-shadow-sm">😔</div>
+            <h2 class="text-2xl font-black text-indigo-800 mb-2">החדר מלא!</h2>
+            <p class="text-indigo-900/70 font-semibold mb-6">כל התלמידים שהמורה הגדיר כבר נכנסו לחדר. אנא ודאו שוב את קוד החדר מול המורה.</p>
+            <button onclick="closeFullRoomModal()" class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold rounded-xl shadow-md hover:scale-105 active:scale-95 transition">
+                הבנתי, תודה
+            </button>
+        </div>
+    </div>
+
     <!-- סקריפטים של Firebase והמשחק -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc, increment, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // אתחול Firebase
         const firebaseConfig = {
@@ -384,6 +396,24 @@
                 const snap = await getDoc(stateRef);
                 if (!snap.exists()) {
                     return alert("החדר לא קיים! אנא בדקו שוב את הקוד שהזנתם.");
+                }
+
+                // בדיקה אם החדר מלא
+                const targetStudents = snap.data().targetStudents || 0;
+                const playersSnap = await getDocs(playersRef);
+                let currentStudentsInRoom = 0;
+                let amIAlreadyIn = false;
+                
+                playersSnap.forEach(pDoc => {
+                    const p = pDoc.data();
+                    if (p.role === 'student') currentStudentsInRoom++;
+                    if (p.uid === window.firebaseUser.uid) amIAlreadyIn = true;
+                });
+
+                // אם אני לא כבר בחדר, והחדר התמלא
+                if (!amIAlreadyIn && currentStudentsInRoom >= targetStudents) {
+                    window.showFullRoomModal();
+                    return; // עוצר את תהליך ההתחברות ומשאיר אותנו במסך הלגין
                 }
             }
 
@@ -837,6 +867,20 @@
             document.getElementById('evaluationModal').classList.add('hidden');
             closeAnswerModal();
         }
+
+        window.showFullRoomModal = () => {
+            const modal = document.getElementById('fullRoomModal');
+            const content = document.getElementById('fullRoomContent');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-95');
+        };
+
+        window.closeFullRoomModal = () => {
+            const modal = document.getElementById('fullRoomModal');
+            const content = document.getElementById('fullRoomContent');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            content.classList.add('scale-95');
+        };
 
         // הפעלת האתחול בטעינה
         document.addEventListener('DOMContentLoaded', init);
